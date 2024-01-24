@@ -1,24 +1,25 @@
 <div class="d-flex align-items-center">
-  <h1>Students of the major</h1>
+  <h1>Étudiants de la filière</h1>
 </div>
 <table class="table">
   <thead>
-  <tr>
-    <th scope="col">First Name</th>
-    <th scope="col">Last Name</th>
-    <th scope="col">Birthdate</th>
-    <th scope="col">Major</th>
-  </tr>
+    <tr>
+      <th scope="col">Nom</th>
+      <th scope="col">Prénom</th>
+      <th scope="col">Date de naissance</th>
+      <th scope="col">Filière</th>
+    </tr>
   </thead>
   <tbody>
-  <ng-container *ngIf="studentsFromMajor$ | async; let studentsFromMajor">
-    <h2 *ngIf="studentsFromMajor.length === 0">Aucun étudiant dans cette Majeure</h2>
-    <tr *ngFor="let student of (studentsFromMajor)">
+    @if (studentsFromMajor$ | async; as studentsFromMajor) { @if (studentsFromMajor.length === 0) {
+    <h2>Aucun étudiant n'est inscrit dans cette filière.</h2>
+    } @for (student of studentsFromMajor; track student) {
+    <tr>
       <td>{{ student.firstName }}</td>
       <td>{{ student.lastName }}</td>
       <td>{{ student.birthdate | date : "dd/MM/yyyy" }}</td>
       <td>{{ student.major!!.name }}</td>
     </tr>
-  </ng-container>
+    } }
   </tbody>
 </table>

@@ -1,4 +1,4 @@
-@use "src/theme";
+@use "theme";
 
 nav {
   height: 80px;
@@ -12,31 +12,29 @@ nav {
     img {
       margin-left: 20px;
       height: 60px;
-      transition: .3s;
+      transition: 0.3s;
 
       &:hover {
         transform: scale(1.1);
       }
     }
-
-    .active {
-      text-decoration: underline;
-    }
   }
 }
 
-.mat-nav-list {
+mat-nav-list {
   margin-left: 50px;
-  padding: 0;
   display: flex;
-}
+  flex-direction: row;
+  width: 250px;
 
-.mat-list-base .mat-list-item {
-  font-size: large;
-  color: theme.$white;
-  transition: .3s;
+  span,
+  a {
+    font-size: large;
+    color: theme.$white;
+    transition: 0.3s;
 
-  &:hover {
-    transform: scale(1.2);
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 }

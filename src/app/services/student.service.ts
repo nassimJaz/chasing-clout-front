@@ -8,8 +8,7 @@ import { HttpClient } from "@angular/common/http"
   providedIn: "root",
 })
 export class StudentService {
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   private studentsUrl = "http://localhost:8080/students"
 
@@ -49,5 +48,4 @@ export class StudentService {
     }
     return student
   }
-
 }

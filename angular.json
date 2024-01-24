@@ -12,7 +12,6 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "formation",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -32,7 +31,8 @@
               "src/styles.scss"
             ],
             "stylePreprocessorOptions": { "includePaths": [ "src" ] },
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": ["bootstrap"]
           },
           "configurations": {
             "production": {
@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "front-skeleton:build:production"
+              "buildTarget": "front-skeleton:build:production"
             },
             "development": {
-              "browserTarget": "front-skeleton:build:development"
+              "buildTarget": "front-skeleton:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "front-skeleton:build"
+            "buildTarget": "front-skeleton:build"
           }
         },
         "test": {

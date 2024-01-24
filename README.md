@@ -1,9 +1,9 @@
-# EpfFrontSkeleton
+# FrontSkeleton
 
 ## Avant de lancer le projet
 
-Run `npm i`
+Lancer `npm i`
 
 ## Pour lancer le projet
 
-Cliquer sur play et se rendre sur `http://localhost:4200/`
+Lancer `npm start` et se rendre sur `http://localhost:4200/`

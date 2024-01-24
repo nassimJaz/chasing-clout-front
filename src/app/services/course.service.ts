@@ -7,8 +7,7 @@ import { HttpClient } from "@angular/common/http"
   providedIn: "root",
 })
 export class CourseService {
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   private coursesUrl = "http://localhost:8080/courses"
 

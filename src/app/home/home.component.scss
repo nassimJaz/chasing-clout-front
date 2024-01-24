@@ -1,12 +1,13 @@
 :host {
   display: flex;
+  align-content: center;
   align-items: center;
   margin: 25px;
+  flex-direction: column;
 
   .title {
-    text-align: center;
     font-family: Caveat, sans-serif;
-    font-size: 3.5em;
+    font-size: 4.5em;
     font-weight: 700;
     margin: 30px 0;
   }
@@ -14,40 +15,29 @@
   p {
     text-align: center;
     margin-top: 30px;
-    font-size: 1.3em;
+    margin-bottom: 30px;
+    font-size: x-large;
   }
 
-  .left {
-    width: 50%;
-    height: 100%;
+  .card {
+    margin-top: 50px;
+    margin-left: 50px;
+    border: none;
     display: flex;
-    flex-direction: column;
-
-    .sun {
-      width: 90px;
-      margin-left: 35px;
-    }
-
-    .card {
-      border: none;
-      display: flex;
-      align-items: baseline;
-
-      .card-text {
-        font-family: "Dancing Script", sans-serif;
-        font-size: x-large;
-        margin-top: 0
-      }
-    }
-  }
-
-  .right {
-    width: 50%;
-    display: flex;
-    justify-content: center;
 
     img {
-      width: 80%;
+      height: 64%;
+      width: 68%;
+      margin-left: 20px;
+    }
+
+    .card-text {
+      font-family: "Dancing Script", sans-serif;
+      font-size: x-large;
+      margin-top: 0;
+      line-height: 1.7;
+      max-width: 400px;
+      margin-left: 15px;
     }
   }
 }

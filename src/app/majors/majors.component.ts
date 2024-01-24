@@ -4,7 +4,7 @@ import { Major } from "models/major.model"
 import { ActivatedRoute } from "@angular/router"
 
 @Component({
-  selector: "epf-majors",
+  selector: "majors",
   templateUrl: "./majors.component.html",
   styleUrls: ["./majors.component.scss"],
 })

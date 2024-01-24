@@ -13,28 +13,28 @@ import { MajorStudentsComponent } from "majors/major-students/major-students.com
 const routes: Routes = [
   { path: "", component: HomeComponent },
   {
-    path: "students",
+    path: "etudiants",
     component: StudentsComponent,
     resolve: {
       students: StudentsResolver,
     },
   },
   {
-    path: "student-details/:id",
+    path: "details-etudiant/:id",
     component: StudentDetailsComponent,
     resolve: {
       student: StudentDetailsResolver,
     },
   },
   {
-    path: "majors",
+    path: "filieres",
     component: MajorsComponent,
     resolve: {
       majors: MajorsResolver,
     },
   },
   {
-    path: "major-students/:id",
+    path: "etudiants-filiere/:id",
     component: MajorStudentsComponent,
     resolve: {
       studentsFromMajor: MajorStudentsResolver,
@@ -46,5 +46,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule {}

@@ -5,15 +5,14 @@ import { ActivatedRoute, Router } from "@angular/router"
 import { StudentService } from "services/student.service"
 
 @Component({
-  selector: "epf-students",
+  selector: "students",
   templateUrl: "./students.component.html",
   styleUrls: ["./students.component.scss"],
 })
 export class StudentsComponent {
   students$: Observable<Student[]> = this._route.data.pipe(map((data) => data["students"]))
 
-  constructor(private _route: ActivatedRoute, private studentService: StudentService, private router: Router,) {
-  }
+  constructor(private _route: ActivatedRoute, private studentService: StudentService, private router: Router) {}
 
   deleteStudent(event: any, student: Student) {
     event.stopPropagation()

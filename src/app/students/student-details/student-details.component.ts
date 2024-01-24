@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core"
+import { Component } from "@angular/core"
 import { map, Observable } from "rxjs"
 import { Student } from "models/student.model"
 import { ActivatedRoute, Router } from "@angular/router"
@@ -9,7 +9,7 @@ import { Major } from "../../models/major.model"
 import { MajorService } from "../../services/major.service"
 
 @Component({
-  selector: "epf-student-details",
+  selector: "student-details",
   templateUrl: "./student-details.component.html",
   styleUrls: ["./student-details.component.scss"],
 })
@@ -38,7 +38,7 @@ export class StudentDetailsComponent {
 
   addCourseToStudent(student: Student) {
     if (this.courseSelectModel != null) {
-      this.studentService.addCourseToStudent(student, this.courseSelectModel!!)
+      this.studentService.addCourseToStudent(student, this.courseSelectModel)
     } else {
       this.notSelectedCourse = true
     }
@@ -57,11 +57,11 @@ export class StudentDetailsComponent {
 
     if (id == "new") {
       this.studentService.create(student).subscribe(() => {
-        this.router.navigate(["students"])
+        this.router.navigate(["etudiants"])
       })
     } else {
       this.studentService.update(id, student).subscribe(() => {
-        this.router.navigate(["students"])
+        this.router.navigate(["etudiants"])
       })
     }
   }
