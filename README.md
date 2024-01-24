@@ -1,5 +1,9 @@
 # FrontSkeleton
 
+## Les installations nécessaire
+- Node JS : https://nodejs.org/en/download
+- Angular : `npm install -g @angular/cli`
+
 ## Avant de lancer le projet
 
 Lancer `npm i`
