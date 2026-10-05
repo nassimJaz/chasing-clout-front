@@ -1,0 +1,30 @@
+<h1>Ouverture</h1>
+
+@if (error) {
+<div class="alert alert-danger">{{ error }} — <a routerLink="/inventaire">retour à l'inventaire</a></div>
+}
+
+<div class="cards">
+  @for (pulled of cards; track pulled.position; let i = $index) {
+  <div class="slot" [class.revealed]="revealed[i]" (click)="reveal(i)">
+    <meme-card [card]="pulled.card" [finish]="pulled.finish" [faceDown]="!revealed[i]"></meme-card>
+    @if (revealed[i] && pulled.finish !== "NORMAL") {
+    <span class="finish finish-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
+    }
+  </div>
+  }
+</div>
+
+@if (cards.length) {
+<div class="actions">
+  @if (!allRevealed) {
+  <button class="btn btn-dark" (click)="revealAll()">Tout retourner</button>
+  } @else {
+  @if (next) {
+  <a class="btn btn-dark" [routerLink]="['/ouverture', next.id]">Ouvrir le suivant ({{ next.name }})</a>
+  }
+  <a class="btn btn-outline-dark" routerLink="/inventaire">Inventaire</a>
+  <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
+  }
+</div>
+}

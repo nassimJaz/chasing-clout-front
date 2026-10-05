@@ -1,0 +1,53 @@
+<h1>Boutique</h1>
+
+<div class="boosters">
+  @for (booster of boosters; track booster.id) {
+  <div class="booster-card" [class.selected]="booster.id === boosterId" (click)="boosterId = booster.id">
+    <div class="booster booster-{{ booster.code }}">{{ booster.name }}</div>
+    <div class="unit-price">{{ booster.price }} memes</div>
+    @for (slot of booster.slots; track slot.position) {
+    <div class="slot">
+      <strong>{{ slot.cardCount }} cartes</strong>
+      @for (odd of odds(slot); track odd.label) {
+      <span>{{ odd.label }} {{ odd.percent | number: "1.0-2" }} %</span>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>
+
+<div class="order">
+  <div class="d-flex flex-wrap gap-2">
+    @for (f of formats; track f.format) {
+    <button class="btn" [class.btn-dark]="format === f.format" [class.btn-outline-dark]="format !== f.format" (click)="format = f.format">
+      {{ f.label }} (×{{ f.count }})
+    </button>
+    }
+  </div>
+
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" id="mixed" [(ngModel)]="mixed" [disabled]="!mixable" />
+    <label class="form-check-label" for="mixed">Mixte 50/50 (Display Medium et Méga)</label>
+  </div>
+  @if (mixed && mixable) {
+  <div class="second">
+    L'autre moitié en
+    <select class="form-select" [(ngModel)]="secondBoosterId">
+      @for (booster of boosters; track booster.id) {
+      <option [ngValue]="booster.id">{{ booster.name }}</option>
+      }
+    </select>
+  </div>
+  }
+
+  <p class="hint">1 booster sur 3 à -60 %</p>
+  <button class="btn btn-lg buy" (click)="buy()">Acheter pour {{ price }} memes</button>
+
+  @if (message) {
+  <div class="alert alert-success">{{ message }} — <a routerLink="/inventaire">les ouvrir</a></div>
+  }
+  @if (error) {
+  <div class="alert alert-danger">{{ error }}</div>
+  }
+</div>

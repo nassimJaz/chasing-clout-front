@@ -14,13 +14,41 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   color : theme.$white !important;
 }
 
-table {
-  font-size: medium;
-  tr {
-    height: 57px;
-    td {
-      vertical-align: middle;
-    }
-  }
+// Theme colors for the components (a component that does `@use "theme"` embeds all of Angular Material's CSS).
+:root {
+  --cc-purple: #{theme.$common-purple};
+  --cc-red: #{theme.$common-red};
+}
 
+.mat-typography h1 {
+  font-family: Caveat, sans-serif;
+  font-size: 3em;
+  font-weight: 700;
+}
+
+// A booster pack (shop and inventory): <div class="booster booster-{{ code }}">
+.booster {
+  width: 140px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 8px 8px 14px 14px;
+  border-top: 10px dashed #ffffff88;
+  box-shadow: 0 6px 14px #0005;
+  color: theme.$white;
+  font: 700 1.7em Caveat, sans-serif;
+  text-align: center;
+}
+
+.booster-BASIC {
+  background: linear-gradient(160deg, #1e88e5, #0d47a1);
+}
+
+.booster-SPECIAL {
+  background: linear-gradient(160deg, #ab47bc, #4a0a67);
+}
+
+.booster-COLLECTION {
+  background: linear-gradient(160deg, #f9e27d, #c9a227 50%, #8d6e00);
 }

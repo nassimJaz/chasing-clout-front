@@ -1,23 +1,23 @@
-@use "theme";
-
 nav {
   height: 80px;
-  background: linear-gradient(to right, theme.$common-purple, theme.$common-red);
+  background: linear-gradient(to right, var(--cc-purple), var(--cc-red));
 
   div {
     height: 100%;
     display: flex;
     align-items: center;
+  }
+}
 
-    img {
-      margin-left: 20px;
-      height: 60px;
-      transition: 0.3s;
+.brand {
+  margin-left: 20px;
+  font: 700 2.4em Caveat, sans-serif;
+  color: #fff;
+  text-decoration: none;
+  transition: 0.3s;
 
-      &:hover {
-        transform: scale(1.1);
-      }
-    }
+  &:hover {
+    transform: scale(1.1);
   }
 }
 
@@ -25,16 +25,26 @@ mat-nav-list {
   margin-left: 50px;
   display: flex;
   flex-direction: row;
-  width: 250px;
+
+  a {
+    width: max-content;
+  }
 
   span,
   a {
     font-size: large;
-    color: theme.$white;
+    color: #fff;
     transition: 0.3s;
 
     &:hover {
       transform: scale(1.2);
     }
   }
+}
+
+.balance {
+  margin: 0 25px 0 auto;
+  font-size: large;
+  font-weight: 500;
+  color: #fff;
 }

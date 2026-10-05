@@ -1,43 +1,35 @@
-import { NgModule } from "@angular/core"
+import { inject, NgModule } from "@angular/core"
 import { RouterModule, Routes } from "@angular/router"
-import { HomeComponent } from "home/home.component"
-import { StudentsComponent } from "students/students.component"
-import { StudentsResolver } from "students/students.resolver"
-import { StudentDetailsComponent } from "students/student-details/student-details.component"
-import { StudentDetailsResolver } from "students/student-details/student-details.resolver"
-import { MajorsComponent } from "majors/majors.component"
-import { MajorsResolver } from "majors/majors.resolver"
-import { MajorStudentsResolver } from "majors/major-students/major-students.resolver"
-import { MajorStudentsComponent } from "majors/major-students/major-students.component"
+import { GameService } from "services/game.service"
+import { ShopComponent } from "shop/shop.component"
+import { InventoryComponent } from "inventory/inventory.component"
+import { OpeningComponent } from "opening/opening.component"
+import { CollectionComponent } from "collection/collection.component"
 
 const routes: Routes = [
-  { path: "", component: HomeComponent },
+  { path: "", redirectTo: "boutique", pathMatch: "full" },
   {
-    path: "etudiants",
-    component: StudentsComponent,
+    path: "boutique",
+    component: ShopComponent,
     resolve: {
-      students: StudentsResolver,
+      boosters: () => inject(GameService).boosters(),
     },
   },
   {
-    path: "details-etudiant/:id",
-    component: StudentDetailsComponent,
+    path: "inventaire",
+    component: InventoryComponent,
     resolve: {
-      student: StudentDetailsResolver,
+      boosters: () => inject(GameService).myBoosters(),
     },
   },
+  // no resolver: opening is a POST, the component does it
+  { path: "ouverture/:id", component: OpeningComponent },
   {
-    path: "filieres",
-    component: MajorsComponent,
+    path: "collection",
+    component: CollectionComponent,
     resolve: {
-      majors: MajorsResolver,
-    },
-  },
-  {
-    path: "etudiants-filiere/:id",
-    component: MajorStudentsComponent,
-    resolve: {
-      studentsFromMajor: MajorStudentsResolver,
+      cards: () => inject(GameService).cards(),
+      myCards: () => inject(GameService).myCards(),
     },
   },
 ]

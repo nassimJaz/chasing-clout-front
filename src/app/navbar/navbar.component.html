@@ -1,6 +1,6 @@
 <nav>
   <div>
-    <img src="assets/takima-logo.png" routerLink="" />
+    <a class="brand" routerLink="">Chasing Clout</a>
     <mat-nav-list>
       @for (link of links; track link) {
       <a mat-list-item routerLink="{{ link.href }}" routerLinkActive="active">
@@ -8,5 +8,8 @@
       </a>
       }
     </mat-nav-list>
+    @if (game.profile$ | async; as profile) {
+    <span class="balance">{{ profile.username }} · {{ profile.memeBalance }} memes</span>
+    }
   </div>
 </nav>

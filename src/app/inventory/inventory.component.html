@@ -1,0 +1,15 @@
+<h1>Inventaire</h1>
+
+@if (groups.length === 0) {
+<p>Aucun booster à ouvrir. <a routerLink="/boutique">Passe à la boutique !</a></p>
+}
+
+<div class="groups">
+  @for (group of groups; track group.code) {
+  <div class="group">
+    <div class="booster booster-{{ group.code }}">{{ group.name }}</div>
+    <div class="count">×{{ group.ids.length }}</div>
+    <a class="btn btn-dark" [routerLink]="['/ouverture', group.ids[0]]">Ouvrir</a>
+  </div>
+  }
+</div>

@@ -1,0 +1,35 @@
+<h1>Collection <small>{{ progress(null) }}</small></h1>
+
+<div class="filters">
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn" [class.btn-dark]="!rarity" [class.btn-outline-dark]="rarity" (click)="rarity = null">
+      Toutes
+    </button>
+    @for (r of rarities; track r) {
+    <button class="btn" [class.btn-dark]="rarity === r" [class.btn-outline-dark]="rarity !== r" (click)="rarity = r">
+      {{ rarityLabels[r] }} <small>{{ progress(r) }}</small>
+    </button>
+    }
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" id="owned" [(ngModel)]="ownedOnly" />
+    <label class="form-check-label" for="owned">Possédées seulement</label>
+  </div>
+</div>
+
+<div class="cards">
+  @for (entry of shown; track entry.card.id) {
+  <div class="entry">
+    <meme-card
+      [card]="entry.card"
+      [finish]="entry.owned.length ? entry.owned[0].finish : 'NORMAL'"
+      [missing]="entry.owned.length === 0"
+    ></meme-card>
+    <div class="owned">
+      @for (owned of entry.owned; track owned.finish) {
+      <span class="badge finish-{{ owned.finish }}">{{ finishLabels[owned.finish] }} ×{{ owned.quantity }}</span>
+      }
+    </div>
+  </div>
+  }
+</div>
