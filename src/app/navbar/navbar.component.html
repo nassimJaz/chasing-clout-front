@@ -9,7 +9,27 @@
       }
     </mat-nav-list>
     @if (game.profile$ | async; as profile) {
-    <span class="balance">{{ profile.username }} · {{ profile.memeBalance }} memes</span>
+    <div class="free">
+      @if (countdown(profile.nextFreeBoosterAt); as left) {
+      <button class="btn btn-outline-light" disabled>Booster gratuit dans {{ left }}</button>
+      } @else {
+      <button class="btn btn-light" [disabled]="claiming" (click)="claimFree()">Booster gratuit</button>
+      }
+      @if (freeError) {
+      <span class="toast" role="alert">{{ freeError }}</span>
+      }
+    </div>
+    <span class="balance">{{ profile.memeBalance }} memes</span>
     }
+    <select
+      class="form-select player"
+      aria-label="Joueur"
+      [ngModel]="player.playerId$ | async"
+      (ngModelChange)="switchPlayer($event)"
+    >
+      @for (p of players; track p.id) {
+      <option [ngValue]="p.id">{{ p.name }}</option>
+      }
+    </select>
   </div>
 </nav>

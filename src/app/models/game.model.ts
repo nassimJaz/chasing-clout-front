@@ -30,6 +30,7 @@ export interface Profile {
   id: number
   username: string
   memeBalance: number
+  nextFreeBoosterAt: string | number | null // null or in the past: the free booster can be claimed
 }
 
 export interface Purchase {
@@ -60,6 +61,12 @@ export interface UserCard {
   quantity: number
   firstObtainedAt: string
 }
+
+// No login yet: the player is picked in the navbar and sent as the X-User-Id header.
+export const PLAYERS = [
+  { id: 1, name: "demo" },
+  { id: 2, name: "rival" },
+]
 
 export const RARITIES: Rarity[] = ["COMMON", "UNCOMMON", "RARE", "VERY_RARE", "ULTRA_RARE", "SECRET"]
 
@@ -99,6 +106,11 @@ export const FORMATS: { format: PurchaseFormat; label: string; count: number; mi
 
 export function formatCount(format: PurchaseFormat): number {
   return FORMATS.find((f) => f.format === format)!.count
+}
+
+// An API Instant as milliseconds: an ISO string, or seconds if Jackson writes dates as numbers.
+export function instant(value: string | number): number {
+  return typeof value === "number" ? value * 1000 : Date.parse(value)
 }
 
 // Error message sent by the API ("Solde insuffisant"...), or a generic one.

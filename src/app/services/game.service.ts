@@ -60,4 +60,9 @@ export class GameService {
   myCards(): Observable<UserCard[]> {
     return this.http.get<UserCard[]>(`${this.api}/me/cards`)
   }
+
+  // One free booster every so often; the API answers 429 when it is too early.
+  claimFreeBooster(): Observable<UserBooster> {
+    return this.http.post<UserBooster>(`${this.api}/me/free-booster`, null).pipe(tap(() => this.refreshProfile()))
+  }
 }
