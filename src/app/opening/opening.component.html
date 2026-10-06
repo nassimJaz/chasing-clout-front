@@ -1,30 +1,37 @@
-<h1>Ouverture</h1>
-
 @if (error) {
 <div class="alert alert-danger">{{ error }} — <a routerLink="/inventaire">retour à l'inventaire</a></div>
 }
 
-<div class="cards">
-  @for (pulled of cards; track pulled.position; let i = $index) {
-  <div class="slot" [class.revealed]="revealed[i]" (click)="reveal(i)">
-    <meme-card [card]="pulled.card" [finish]="pulled.finish" [faceDown]="!revealed[i]"></meme-card>
-    @if (revealed[i] && pulled.finish !== "NORMAL") {
-    <span class="finish finish-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
-    }
-  </div>
+<div class="stage" #stage [class.hidden]="phase === 'recap' || error" (click)="onStageClick()">
+  @if (phase === "loading" && !error) {
+  <p class="hint">Ouverture…</p>
+  }
+  @if (phase === "pack" || phase === "stack") {
+  <p class="hint">{{ hint }}</p>
+  <button class="btn btn-outline-light skip" (click)="$event.stopPropagation(); recap()">Passer</button>
   }
 </div>
 
-@if (cards.length) {
-<div class="actions">
-  @if (!allRevealed) {
-  <button class="btn btn-dark" (click)="revealAll()">Tout retourner</button>
-  } @else {
-  @if (next) {
-  <a class="btn btn-dark" [routerLink]="['/ouverture', next.id]">Ouvrir le suivant ({{ next.name }})</a>
-  }
-  <a class="btn btn-outline-dark" routerLink="/inventaire">Inventaire</a>
-  <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
-  }
+@if (phase === "recap") {
+<div class="recap">
+  <h1>Ouverture</h1>
+  <div class="cards">
+    @for (pulled of cards; track pulled.position) {
+    <div class="slot">
+      <meme-card [card]="pulled.card" [finish]="pulled.finish"></meme-card>
+      @if (pulled.finish !== "NORMAL") {
+      <span class="finish finish-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="actions">
+    @if (next) {
+    <a class="btn btn-dark" [routerLink]="['/ouverture', next.id]">Ouvrir le suivant ({{ next.name }})</a>
+    }
+    <a class="btn btn-outline-dark" routerLink="/inventaire">Inventaire</a>
+    <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
+  </div>
 </div>
 }
