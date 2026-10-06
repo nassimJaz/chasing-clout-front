@@ -1,4 +1,7 @@
 <div class="inner" [class.face-down]="faceDown">
+  @if (!faceDown && finish === "FIRE") {
+  <div class="flames" aria-hidden="true"></div>
+  }
   <div class="face back"><span>CC</span></div>
   <div class="face front rarity-{{ card.rarity }} {{ faceDown ? '' : 'finish-' + finish }}" [class.missing]="missing">
     <img [src]="game.imageUrl(card)" [alt]="card.name" loading="lazy" />

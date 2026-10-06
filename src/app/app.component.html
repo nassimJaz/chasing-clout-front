@@ -1,3 +1,18 @@
 <navbar></navbar>
 <router-outlet></router-outlet>
 
+<!-- Flame filters for <meme-card> (see .flames): defined once, used with filter: url(#cc-fire) -->
+<svg class="cc-filters" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="cc-fire" x="-20%" y="-30%" width="140%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04 0.1" numOctaves="2" seed="2" result="noise">
+      <animate attributeName="baseFrequency" dur="1.4s" values="0.04 0.1;0.05 0.14;0.04 0.1" repeatCount="indefinite" />
+      <animate attributeName="seed" dur="0.8s" values="1;2;3;4;5;6;7;8" calcMode="discrete" repeatCount="indefinite" />
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+  <!-- prefers-reduced-motion: the same flames, still -->
+  <filter id="cc-fire-still" x="-20%" y="-30%" width="140%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04 0.1" numOctaves="2" seed="2" result="noise" />
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>

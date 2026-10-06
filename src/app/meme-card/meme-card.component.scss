@@ -95,24 +95,18 @@
   animation: holo 3s linear infinite alternate;
 }
 
-// Fire: flickering flames around and at the bottom of the card.
-.finish-FIRE {
-  animation: fire 0.6s ease-in-out infinite alternate;
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 40% 0 0;
-    pointer-events: none;
-    background: linear-gradient(to top, #ff3c00cc, #ffae0055 50%, transparent);
-    mix-blend-mode: screen;
-  }
+// Fire: the inner heat at the bottom of the card...
+.finish-FIRE::after {
+  content: "";
+  position: absolute;
+  inset: 40% 0 0;
+  pointer-events: none;
+  background: linear-gradient(to top, #ff3c00cc, #ffae0055 50%, transparent);
+  mix-blend-mode: screen;
 }
+
+// ...and a border of flames behind it: .flames, styled in src/styles.scss (budget of this file).
 
 @keyframes holo {
   to { background-position: 100% 100%; }
-}
-
-@keyframes fire {
-  from { box-shadow: 0 0 10px 3px #ff6a00, 0 0 20px 6px #ff000099; }
-  to { box-shadow: 0 0 16px 6px #ffae00, 0 0 32px 12px #ff3c00cc; }
 }
