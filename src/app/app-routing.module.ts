@@ -15,6 +15,8 @@ const routes: Routes = [
     component: ShopComponent,
     resolve: {
       boosters: () => inject(GameService).boosters(),
+      // for the strip of the rarest cards
+      cards: () => inject(GameService).cards(),
     },
   },
   {

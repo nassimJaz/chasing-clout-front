@@ -22,7 +22,7 @@ Changer de joueur recharge le solde et la page courante.
 ## Pages
 | URL | Rôle |
 |---|---|
-| `/boutique` | Les 3 boosters avec leurs cotes ; achat par format (1, 3, 9, 30, 60), mixte 50/50 pour les Display Medium et Méga |
+| `/boutique` | Vitrine 3D du pack configuré (type, format, display mixte 50/50), cotes en barres par rareté, prix par booster et économie par format ; après l'achat, « Ouvrir maintenant ». En bas, les cartes les plus rares à gagner |
 | `/inventaire` | Boosters non ouverts : un groupe par tri-pack ou display acheté, les autres groupés par type |
 | `/ouverture/:id` | Ouvre le booster (appel POST) en 3D : le paquet se déchire, les cartes se retournent une à une, puis un récap |
 | `/ouverture/box/:purchaseId` | Ouvre un tri-pack ou un display : la box s'ouvre en 3D, on choisit ses boosters un par un ou « Tout ouvrir » |
@@ -36,9 +36,11 @@ compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est tr
 - `services/game.service.ts` : tous les appels à l'API, et `profile$` (le solde de la navbar)
 - `models/game.model.ts` : les types des réponses de l'API (miroir des DTO), les libellés français des raretés, finitions et formats
 - `services/player.service.ts` : le joueur courant ; `services/user-id.interceptor.ts` : le header `X-User-Id`
-- `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo, flammes), utilisée par les grilles
+- `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo, bordure de flammes via le filtre SVG
+  `#cc-fire` défini une fois dans `app.component.html`), utilisée par les grilles
 - `three/` : les scènes 3D (Three.js + GSAP), toujours chargées en `import()` pour rester hors du bundle initial :
-  `stage.ts` (socle commun), `card-art.ts` et `pack-art.ts` (textures et objets), `booster-scene.ts`, `box-scene.ts`, `card-viewer.ts`
+  `stage.ts` (socle commun), `card-art.ts` (cartes, holo, feu en shader) et `pack-art.ts` (boosters et box), `booster-scene.ts`,
+  `box-scene.ts`, `card-viewer.ts`, `shop-scene.ts`
 - `booster-opening/` : le déroulé 3D d'un booster, utilisé par `/ouverture/:id` et par la box
 - `card-inspect/` : la modale 3D d'une carte (collection, récaps, marché)
 - `shop/`, `inventory/`, `opening/`, `box-opening/`, `collection/`, `market/` : les pages ; les données sont chargées par des
@@ -47,4 +49,4 @@ compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est tr
 ## À savoir
 - Dans le SCSS d'un composant, ne pas faire `@use "theme"` : ça embarque tout le CSS Angular Material dans le composant
   (64 kB, le build de prod échoue sur le budget par composant). Utiliser les variables `--cc-purple` / `--cc-red` définies dans `src/styles.scss`.
-- `ng build` affiche un avertissement sur la taille totale (environ 920 kB pour un budget de 500 kB, surtout le CSS Bootstrap + Material) : ce n'est pas bloquant.
+- `ng build` affiche un avertissement sur la taille totale (environ 940 kB pour un budget de 500 kB, surtout le CSS Bootstrap + Material) : ce n'est pas bloquant.

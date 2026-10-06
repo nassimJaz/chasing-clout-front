@@ -2,10 +2,17 @@ nav {
   height: 80px;
   background: linear-gradient(to right, var(--cc-purple), var(--cc-red));
 
-  div {
+  > div {
     height: 100%;
     display: flex;
     align-items: center;
+    // small screens: the bar scrolls sideways instead of widening the page
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  > div > * {
+    flex-shrink: 0;
   }
 }
 
@@ -48,10 +55,11 @@ mat-nav-list {
 }
 
 // the API's answer when the free booster is refused
+// fixed: the bar scrolls on small screens and would clip it
 .toast {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  top: 88px;
+  right: 16px;
   z-index: 10;
   width: max-content;
   max-width: 260px;

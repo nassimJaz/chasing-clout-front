@@ -19,6 +19,7 @@ export abstract class Stage {
   private raf = 0
   private last = 0
   private running = false
+  private held = false // paused by the scene's owner, not only because the tab is hidden
   private _spark?: THREE.Texture
 
   constructor(protected container: HTMLElement) {}
@@ -51,26 +52,26 @@ export abstract class Stage {
       this.mouse.set(((p.clientX - rect.left) / rect.width) * 2 - 1, -((p.clientY - rect.top) / rect.height) * 2 + 1)
     })
     this.listen("pointerleave", () => this.mouse.set(0, 0))
+    document.addEventListener("visibilitychange", this.onVisibility)
     this.resume()
   }
 
   // Stops rendering (the context is kept), for instance while another scene is shown on top.
   pause(): void {
-    this.running = false
-    cancelAnimationFrame(this.raf)
+    this.held = true
+    this.stop()
   }
 
   resume(): void {
-    if (this.running || this.disposed || !this.renderer) return
-    this.running = true
-    this.last = performance.now() / 1000
-    this.raf = requestAnimationFrame(this.loop)
+    this.held = false
+    if (!document.hidden) this.run()
   }
 
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
     this.pause()
+    document.removeEventListener("visibilitychange", this.onVisibility)
     this.timelines.forEach((tl) => tl.kill())
     this.observer?.disconnect()
     if (!this.renderer) return
@@ -120,14 +121,22 @@ export abstract class Stage {
     return texture
   }
 
-  // Removes an object and frees what it owns (not its textures, they are freed on dispose).
-  protected remove(object: THREE.Object3D, keepGeometry = false): void {
+  // Removes an object and frees what it owns. Its textures are freed on dispose, or now with withTextures
+  // (only when nothing else uses them, e.g. a pack replaced by another one).
+  protected remove(object: THREE.Object3D, keepGeometry = false, withTextures = false): void {
     object.removeFromParent()
     object.traverse((o) => {
       const mesh = o as THREE.Mesh
       if (!keepGeometry) mesh.geometry?.dispose()
       const materials = mesh.material ? ([] as THREE.Material[]).concat(mesh.material) : []
-      materials.forEach((m) => m.dispose())
+      materials.forEach((m) => {
+        const map = (m as THREE.MeshStandardMaterial).map
+        if (withTextures && map) {
+          map.dispose()
+          this.textures = this.textures.filter((t) => t !== map)
+        }
+        m.dispose()
+      })
     })
   }
 
@@ -152,6 +161,24 @@ export abstract class Stage {
     this.camera.aspect = w / h
     this.onResize()
     this.camera.updateProjectionMatrix()
+  }
+
+  private run(): void {
+    if (this.running || this.disposed || !this.renderer) return
+    this.running = true
+    this.last = performance.now() / 1000
+    this.raf = requestAnimationFrame(this.loop)
+  }
+
+  private stop(): void {
+    this.running = false
+    cancelAnimationFrame(this.raf)
+  }
+
+  // no rendering in a hidden tab
+  private onVisibility = (): void => {
+    if (document.hidden) this.stop()
+    else if (!this.held) this.run()
   }
 
   private loop = (now: number): void => {

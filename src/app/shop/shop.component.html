@@ -1,53 +1,113 @@
-<h1>Boutique</h1>
-
-<div class="boosters">
-  @for (booster of boosters; track booster.id) {
-  <div class="booster-card" [class.selected]="booster.id === boosterId" (click)="boosterId = booster.id">
-    <div class="booster booster-{{ booster.code }}">{{ booster.name }}</div>
-    <div class="unit-price">{{ booster.price }} memes</div>
-    @for (slot of booster.slots; track slot.position) {
-    <div class="slot">
-      <strong>{{ slot.cardCount }} cartes</strong>
-      @for (odd of odds(slot); track odd.label) {
-      <span>{{ odd.label }} {{ odd.percent | number: "1.0-2" }} %</span>
-      }
+<section class="window">
+  <div class="stage cc-stage" #stage aria-hidden="true">
+    @if (flat) {
+    <div class="flat booster-{{ type.code }}">
+      <span>{{ type.name }}</span>
     </div>
     }
   </div>
-  }
-</div>
 
-<div class="order">
-  <div class="d-flex flex-wrap gap-2">
-    @for (f of formats; track f.format) {
-    <button class="btn" [class.btn-dark]="format === f.format" [class.btn-outline-dark]="format !== f.format" (click)="format = f.format">
-      {{ f.label }} (×{{ f.count }})
+  <div class="config">
+    <h1>Boutique</h1>
+
+    <div class="types" role="radiogroup" aria-label="Type de booster">
+      @for (b of boosters; track b.id) {
+      <button
+        class="type booster-{{ b.code }}"
+        role="radio"
+        [attr.aria-checked]="b.id === boosterId"
+        [class.selected]="b.id === boosterId"
+        (click)="selectType(b.id)"
+        (pointermove)="foil($event)"
+      >
+        <span class="name">{{ b.name }}</span>
+        <span class="unit">{{ b.price }} memes le booster</span>
+        @for (slot of b.slots; track slot.position) {
+        <span class="slot">
+          <span>{{ slot.cardCount }} cartes</span>
+          <span class="bar">
+            @for (o of odds(slot); track o.rarity) {
+            <i [style.flex-basis.%]="o.percent" [style.background]="rarityColors[o.rarity]" [title]="rarityLabels[o.rarity] + ' ' + (o.percent | number: '1.0-2') + ' %'"></i>
+            }
+          </span>
+        </span>
+        }
+      </button>
+      }
+    </div>
+    <p class="legend">
+      @for (r of rarities; track r) {
+      <span><i [style.background]="rarityColors[r]"></i>{{ rarityLabels[r] }}</span>
+      }
+    </p>
+
+    <div class="formats" role="radiogroup" aria-label="Format">
+      @for (t of tiles; track t.format) {
+      <button class="tile" role="radio" [attr.aria-checked]="t.format === format" [class.selected]="t.format === format" (click)="selectFormat(t.format)">
+        @if (t.format === best) {
+        <span class="best">Meilleure valeur</span>
+        }
+        <span class="thumb thumb-{{ t.format }} booster-{{ type.code }}"></span>
+        <span class="label">{{ t.label }} <small>×{{ t.count }}</small></span>
+        <span class="total">{{ t.total }} memes</span>
+        <span class="per">
+          {{ t.perBooster | number: "1.0-0" }} / booster
+          @if (t.saving > 0) {
+          <b>−{{ t.saving }} %</b>
+          }
+        </span>
+      </button>
+      }
+    </div>
+
+    @if (mixable) {
+    <div class="mix">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="mixed" [ngModel]="mixed" (ngModelChange)="setMixed($event)" />
+        <label class="form-check-label" for="mixed">Mixte 50/50</label>
+      </div>
+      @if (mixed) {
+      <span>avec</span>
+      @for (b of boosters; track b.id) {
+      @if (b.id !== boosterId) {
+      <button class="swatch" [class.selected]="b.id === secondBoosterId" [attr.aria-pressed]="b.id === secondBoosterId" (click)="selectSecond(b.id)">
+        <i class="booster-{{ b.code }}"></i>{{ b.name }}
+      </button>
+      }
+      }
+      }
+    </div>
+    }
+
+    @if (game.profile$ | async; as profile) {
+    <button class="buy" [disabled]="buying || profile.memeBalance < price" (click)="buy()">Acheter · {{ price }} memes</button>
+    @if (profile.memeBalance < price) {
+    <p class="short">Il te manque {{ price - profile.memeBalance }} memes</p>
+    }
+    }
+    @if (purchase) {
+    <p class="done" role="status">
+      C'est dans ton inventaire.
+      <button class="btn btn-light btn-sm" (click)="openNow()">Ouvrir maintenant</button>
+    </p>
+    }
+    @if (error) {
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    }
+  </div>
+</section>
+
+<section class="prizes">
+  <h2>Les plus rares de la collection</h2>
+  <div class="strip" #strip (mouseenter)="pauseStrip(true)" (mouseleave)="pauseStrip(false)" (focusin)="pauseStrip(true)" (focusout)="pauseStrip(false)">
+    @for (card of prizes; track card.id; let i = $index) {
+    <button class="card-btn" [attr.aria-label]="'Inspecter ' + card.name" (click)="inspect(card, i)">
+      <meme-card [card]="card" [finish]="prizeFinish(i)"></meme-card>
     </button>
     }
   </div>
+</section>
 
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" id="mixed" [(ngModel)]="mixed" [disabled]="!mixable" />
-    <label class="form-check-label" for="mixed">Mixte 50/50 (Display Medium et Méga)</label>
-  </div>
-  @if (mixed && mixable) {
-  <div class="second">
-    L'autre moitié en
-    <select class="form-select" [(ngModel)]="secondBoosterId">
-      @for (booster of boosters; track booster.id) {
-      <option [ngValue]="booster.id">{{ booster.name }}</option>
-      }
-    </select>
-  </div>
-  }
-
-  <p class="hint">1 booster sur 3 à -60 %</p>
-  <button class="btn btn-lg buy" (click)="buy()">Acheter pour {{ price }} memes</button>
-
-  @if (message) {
-  <div class="alert alert-success">{{ message }} — <a routerLink="/inventaire">les ouvrir</a></div>
-  }
-  @if (error) {
-  <div class="alert alert-danger">{{ error }}</div>
-  }
-</div>
+@if (inspected) {
+<card-inspect [card]="inspected.card" [startFinish]="inspected.finish" (closed)="inspected = undefined"></card-inspect>
+}
