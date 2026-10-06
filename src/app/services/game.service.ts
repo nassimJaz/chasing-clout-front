@@ -74,9 +74,10 @@ export class GameService {
     return this.http.get<CardPrice[]>(`${this.api}/market/prices/${cardId}`)
   }
 
-  buyFromSystem(cardId: number, finish: Finish): Observable<CardPrice> {
+  // The system buys one copy back (buyback = half the system price); it sells nothing.
+  sellToSystem(cardId: number, finish: Finish): Observable<CardPrice> {
     return this.http
-      .post<CardPrice>(`${this.api}/market/system-purchases`, { memeCardId: cardId, finish })
+      .post<CardPrice>(`${this.api}/market/system-sales`, { memeCardId: cardId, finish })
       .pipe(tap(() => this.refreshProfile()))
   }
 

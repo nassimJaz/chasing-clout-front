@@ -68,11 +68,12 @@ export interface Listing {
   createdAt: string | number
 }
 
-// What the system sells a card for, in one finish.
+// The system price of a card in one finish (the reference), and what the system pays to buy it back.
 export interface CardPrice {
   memeCardId: number
   finish: Finish
   price: number
+  buyback: number
 }
 
 export interface UserCard {

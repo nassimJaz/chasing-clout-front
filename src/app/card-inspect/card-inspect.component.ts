@@ -17,7 +17,7 @@ import { GameService } from "services/game.service"
 import type { CardViewer } from "../three/card-viewer"
 
 // A full-screen dialog showing one card in 3D (drag to turn it), with the finishes owned.
-// In "collection" mode it also buys the card from the system and puts owned finishes on sale (emits changed).
+// In "collection" mode an owned finish can be put on sale on the market or sold to the system (emits changed).
 // Closes with Escape, the backdrop or the cross. Without WebGL it shows a big <meme-card> instead.
 @Component({
   selector: "card-inspect",
@@ -44,6 +44,8 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // collection mode
   prices: Partial<Record<Finish, number>> = {}
+  buyback: Partial<Record<Finish, number>> = {}
+  confirming?: Finish // first click on "Vendre au système", the second one sells
   sellPrice: Partial<Record<Finish, number>> = {}
   busy = false
   message = ""
@@ -52,6 +54,7 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
   private viewer?: CardViewer
   private destroyed = false
   private opener?: Element | null
+  private confirmTimer?: ReturnType<typeof setTimeout>
 
   constructor(private _zone: NgZone, private _game: GameService) {}
 
@@ -63,6 +66,7 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (prices: CardPrice[]) =>
           prices.forEach((p) => {
             this.prices[p.finish] = p.price
+            this.buyback[p.finish] = p.buyback
             this.sellPrice[p.finish] ??= p.price
           }),
         error: (err) => (this.error = apiError(err)),
@@ -86,6 +90,7 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true
+    clearTimeout(this.confirmTimer)
     this.viewer?.dispose()
     // give the focus back to the card that opened the dialog
     if (this.opener instanceof HTMLElement) this.opener.focus()
@@ -95,8 +100,17 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.owned.find((o) => o.finish === finish)?.quantity ?? 0
   }
 
-  buy(finish: Finish): void {
-    this.act(this._game.buyFromSystem(this.card.id, finish), `${this.finishLabels[finish]} achetée`, finish)
+  // Can't be undone: the first click asks for a confirmation for 3 seconds.
+  sellToSystem(finish: Finish): void {
+    clearTimeout(this.confirmTimer)
+    if (this.confirming !== finish) {
+      this.confirming = finish
+      this.confirmTimer = setTimeout(() => (this.confirming = undefined), 3000)
+      return
+    }
+    this.confirming = undefined
+    const amount = this.buyback[finish]
+    this.act(this._game.sellToSystem(this.card.id, finish), `Vendue au système pour ${amount} memes`, finish)
   }
 
   // The card leaves the collection while it is on sale.

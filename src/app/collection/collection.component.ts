@@ -11,7 +11,7 @@ interface Entry {
 const FINISH_ORDER: Finish[] = ["FIRE", "HOLO", "NORMAL"]
 
 // All 300 cards: owned ones in color with their finishes, missing ones greyed out.
-// Any card opens the 3D dialog, where it can be bought from the system or put on sale.
+// Any card opens the 3D dialog, where an owned one can be put on sale or sold to the system.
 @Component({
   selector: "collection",
   templateUrl: "./collection.component.html",

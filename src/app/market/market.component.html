@@ -45,6 +45,9 @@
     }
     <div class="price">{{ listing.price }} memes</div>
     <div class="versus" [class.cheaper]="cheaper(listing)">{{ versusSystem(listing) }}</div>
+    @if (buyback(listing); as amount) {
+    <div class="buyback">Rachat système : {{ amount }} memes</div>
+    }
     <div class="seller">{{ listing.seller === profile.username ? "Ton annonce" : listing.seller }}, le {{ date(listing) }}</div>
     @if (listing.seller === profile.username) {
     <button class="btn btn-sm btn-outline-dark" [disabled]="busy === listing.id" (click)="cancel(listing)">Retirer</button>

@@ -82,7 +82,7 @@ h2 {
   }
 }
 
-// collection mode: one row per finish, buy from the system or sell
+// collection mode: one row per finish, put on sale or sell to the system
 .offers {
   margin: 0;
   padding: 0;
@@ -105,6 +105,11 @@ h2 {
   input {
     width: 90px;
   }
+}
+
+.value {
+  font-size: 0.85em;
+  color: #ffffffb3;
 }
 
 .ok,

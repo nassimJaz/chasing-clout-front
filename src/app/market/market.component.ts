@@ -57,6 +57,11 @@ export class MarketComponent {
     return `${diff > 0 ? "+" : "−"}${Math.abs(diff)} % vs système`
   }
 
+  // what the system would pay for the same card, to place the listing
+  buyback(listing: Listing): number | undefined {
+    return this.prices.get(listing.card.id)?.find((p) => p.finish === listing.finish)?.buyback
+  }
+
   cheaper(listing: Listing): boolean {
     return this.versusSystem(listing).startsWith("−")
   }
