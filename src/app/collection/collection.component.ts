@@ -1,6 +1,7 @@
 import { Component } from "@angular/core"
 import { ActivatedRoute } from "@angular/router"
 import { Card, Finish, FINISH_LABELS, Rarity, RARITIES, RARITY_LABELS, UserCard } from "models/game.model"
+import { GameService } from "services/game.service"
 
 interface Entry {
   card: Card
@@ -9,14 +10,15 @@ interface Entry {
 
 const FINISH_ORDER: Finish[] = ["FIRE", "HOLO", "NORMAL"]
 
-// All 300 cards: owned ones in color with their finishes (click to inspect in 3D), missing ones greyed out.
+// All 300 cards: owned ones in color with their finishes, missing ones greyed out.
+// Any card opens the 3D dialog, where it can be bought from the system or put on sale.
 @Component({
   selector: "collection",
   templateUrl: "./collection.component.html",
   styleUrls: ["./collection.component.scss"],
 })
 export class CollectionComponent {
-  entries: Entry[]
+  entries: Entry[] = []
   rarities = RARITIES
   rarityLabels = RARITY_LABELS
   finishLabels = FINISH_LABELS
@@ -25,10 +27,23 @@ export class CollectionComponent {
   ownedOnly = false
   selected?: Entry // shown in the inspection dialog
 
-  constructor(private _route: ActivatedRoute) {
-    const cards: Card[] = this._route.snapshot.data["cards"]
-    const myCards: UserCard[] = this._route.snapshot.data["myCards"]
-    this.entries = cards.map((card) => ({
+  private cards: Card[]
+
+  constructor(private _route: ActivatedRoute, private _game: GameService) {
+    this.cards = this._route.snapshot.data["cards"]
+    this.entries = this.build(this.cards, this._route.snapshot.data["myCards"])
+  }
+
+  // After a purchase or a sale in the dialog: reload what is owned, the dialog follows.
+  reload(): void {
+    this._game.myCards().subscribe((myCards) => {
+      this.entries = this.build(this.cards, myCards)
+      if (this.selected) this.selected = this.entries.find((e) => e.card.id === this.selected!.card.id)
+    })
+  }
+
+  private build(cards: Card[], myCards: UserCard[]): Entry[] {
+    return cards.map((card) => ({
       card,
       owned: myCards
         .filter((c) => c.card.id === card.id)

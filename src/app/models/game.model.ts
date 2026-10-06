@@ -55,12 +55,34 @@ export interface PulledCard {
   finish: Finish
 }
 
+export type ListingStatus = "ACTIVE" | "SOLD" | "CANCELLED"
+
+// A card put on sale by a player (the card is held by the market until sold or cancelled).
+export interface Listing {
+  id: number
+  card: Card
+  finish: Finish
+  price: number
+  status: ListingStatus
+  seller: string // username
+  createdAt: string | number
+}
+
+// What the system sells a card for, in one finish.
+export interface CardPrice {
+  memeCardId: number
+  finish: Finish
+  price: number
+}
+
 export interface UserCard {
   card: Card
   finish: Finish
   quantity: number
   firstObtainedAt: string
 }
+
+export const FINISHES: Finish[] = ["NORMAL", "HOLO", "FIRE"]
 
 // No login yet: the player is picked in the navbar and sent as the X-User-Id header.
 export const PLAYERS = [

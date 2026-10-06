@@ -11,10 +11,13 @@ import {
   Output,
   ViewChild,
 } from "@angular/core"
-import { Card, Finish, FINISH_LABELS, RARITY_COLORS, RARITY_LABELS, UserCard } from "models/game.model"
+import { Observable } from "rxjs"
+import { apiError, Card, CardPrice, Finish, FINISHES, FINISH_LABELS, RARITY_COLORS, RARITY_LABELS, UserCard } from "models/game.model"
+import { GameService } from "services/game.service"
 import type { CardViewer } from "../three/card-viewer"
 
 // A full-screen dialog showing one card in 3D (drag to turn it), with the finishes owned.
+// In "collection" mode it also buys the card from the system and puts owned finishes on sale (emits changed).
 // Closes with Escape, the backdrop or the cross. Without WebGL it shows a big <meme-card> instead.
 @Component({
   selector: "card-inspect",
@@ -24,7 +27,10 @@ import type { CardViewer } from "../three/card-viewer"
 export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input({ required: true }) card!: Card
   @Input() owned: UserCard[] = []
+  @Input() mode: "collection" | "view" = "view"
+  @Input() startFinish?: Finish // shown first, otherwise the best one owned
   @Output() closed = new EventEmitter<void>()
+  @Output() changed = new EventEmitter<void>()
 
   @ViewChild("stage", { static: true }) stage!: ElementRef<HTMLElement>
   @ViewChild("dialog", { static: true }) dialog!: ElementRef<HTMLElement>
@@ -34,16 +40,34 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
   rarityLabels = RARITY_LABELS
   rarityColors = RARITY_COLORS
   finishLabels = FINISH_LABELS
+  finishes = FINISHES
+
+  // collection mode
+  prices: Partial<Record<Finish, number>> = {}
+  sellPrice: Partial<Record<Finish, number>> = {}
+  busy = false
+  message = ""
+  error = ""
 
   private viewer?: CardViewer
   private destroyed = false
   private opener?: Element | null
 
-  constructor(private _zone: NgZone) {}
+  constructor(private _zone: NgZone, private _game: GameService) {}
 
   ngOnInit(): void {
-    this.finish = this.owned[0]?.finish ?? "NORMAL"
+    this.finish = this.startFinish ?? this.owned[0]?.finish ?? "NORMAL"
     this.opener = document.activeElement
+    if (this.mode === "collection") {
+      this._game.prices(this.card.id).subscribe({
+        next: (prices: CardPrice[]) =>
+          prices.forEach((p) => {
+            this.prices[p.finish] = p.price
+            this.sellPrice[p.finish] ??= p.price
+          }),
+        error: (err) => (this.error = apiError(err)),
+      })
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -65,6 +89,38 @@ export class CardInspectComponent implements OnInit, AfterViewInit, OnDestroy {
     this.viewer?.dispose()
     // give the focus back to the card that opened the dialog
     if (this.opener instanceof HTMLElement) this.opener.focus()
+  }
+
+  quantity(finish: Finish): number {
+    return this.owned.find((o) => o.finish === finish)?.quantity ?? 0
+  }
+
+  buy(finish: Finish): void {
+    this.act(this._game.buyFromSystem(this.card.id, finish), `${this.finishLabels[finish]} achetée`, finish)
+  }
+
+  // The card leaves the collection while it is on sale.
+  sell(finish: Finish): void {
+    const price = Math.round(this.sellPrice[finish] ?? 0)
+    this.act(this._game.createListing(this.card.id, finish, price), `Mise en vente à ${price} memes`, finish)
+  }
+
+  private act(call: Observable<unknown>, success: string, finish: Finish): void {
+    this.busy = true
+    this.message = ""
+    this.error = ""
+    call.subscribe({
+      next: () => {
+        this.busy = false
+        this.message = success
+        this.select(finish)
+        this.changed.emit()
+      },
+      error: (err) => {
+        this.busy = false
+        this.error = apiError(err)
+      },
+    })
   }
 
   get selected(): UserCard | undefined {

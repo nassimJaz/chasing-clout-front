@@ -5,6 +5,9 @@ import { environment } from "../../environments/environment"
 import {
   BoosterType,
   Card,
+  CardPrice,
+  Finish,
+  Listing,
   Profile,
   PulledCard,
   Purchase,
@@ -64,5 +67,33 @@ export class GameService {
   // One free booster every so often; the API answers 429 when it is too early.
   claimFreeBooster(): Observable<UserBooster> {
     return this.http.post<UserBooster>(`${this.api}/me/free-booster`, null).pipe(tap(() => this.refreshProfile()))
+  }
+
+  // System price of a card in each finish.
+  prices(cardId: number): Observable<CardPrice[]> {
+    return this.http.get<CardPrice[]>(`${this.api}/market/prices/${cardId}`)
+  }
+
+  buyFromSystem(cardId: number, finish: Finish): Observable<CardPrice> {
+    return this.http
+      .post<CardPrice>(`${this.api}/market/system-purchases`, { memeCardId: cardId, finish })
+      .pipe(tap(() => this.refreshProfile()))
+  }
+
+  // Active listings, cheapest first.
+  listings(): Observable<Listing[]> {
+    return this.http.get<Listing[]>(`${this.api}/market/listings`)
+  }
+
+  createListing(cardId: number, finish: Finish, price: number): Observable<Listing> {
+    return this.http.post<Listing>(`${this.api}/market/listings`, { memeCardId: cardId, finish, price })
+  }
+
+  cancelListing(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/market/listings/${id}`)
+  }
+
+  buyListing(id: number): Observable<Listing> {
+    return this.http.post<Listing>(`${this.api}/market/listings/${id}/purchase`, null).pipe(tap(() => this.refreshProfile()))
   }
 }

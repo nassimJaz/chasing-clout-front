@@ -6,6 +6,7 @@ import { InventoryComponent } from "inventory/inventory.component"
 import { OpeningComponent } from "opening/opening.component"
 import { CollectionComponent } from "collection/collection.component"
 import { BoxOpeningComponent } from "box-opening/box-opening.component"
+import { MarketComponent } from "market/market.component"
 
 const routes: Routes = [
   { path: "", redirectTo: "boutique", pathMatch: "full" },
@@ -32,6 +33,13 @@ const routes: Routes = [
     resolve: {
       cards: () => inject(GameService).cards(),
       myCards: () => inject(GameService).myCards(),
+    },
+  },
+  {
+    path: "marche",
+    component: MarketComponent,
+    resolve: {
+      listings: () => inject(GameService).listings(),
     },
   },
 ]

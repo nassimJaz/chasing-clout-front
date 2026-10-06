@@ -12,7 +12,32 @@
     <div class="info">
       <h2>{{ card.name }}</h2>
       <p class="rarity" [style.color]="rarityColors[card.rarity]">{{ rarityLabels[card.rarity] }}</p>
-      @if (owned.length) {
+      @if (mode === "collection") {
+      <ul class="offers">
+        @for (f of finishes; track f) {
+        <li [class.on]="f === finish">
+          <button class="finish-chip chip-{{ f }}" [attr.aria-pressed]="f === finish" (click)="select(f)">
+            {{ finishLabels[f] }}@if (quantity(f)) { ×{{ quantity(f) }}}
+          </button>
+          @if (prices[f] !== undefined) {
+          <button class="btn btn-sm btn-light" [disabled]="busy" (click)="buy(f)">Acheter au système ({{ prices[f] }} memes)</button>
+          }
+          @if (quantity(f)) {
+          <div class="sell">
+            <input class="form-control form-control-sm" type="number" min="1" [attr.aria-label]="'Prix de vente ' + finishLabels[f]" [(ngModel)]="sellPrice[f]" />
+            <button class="btn btn-sm btn-outline-light" [disabled]="busy || !sellPrice[f] || sellPrice[f]! <= 0" (click)="sell(f)">Vendre</button>
+          </div>
+          }
+        </li>
+        }
+      </ul>
+      @if (message) {
+      <p class="ok" role="status">{{ message }}</p>
+      }
+      @if (error) {
+      <p class="ko" role="alert">{{ error }}</p>
+      }
+      } @else if (owned.length) {
       <div class="finishes">
         @for (o of owned; track o.finish) {
         <button class="finish-chip chip-{{ o.finish }}" [class.on]="o.finish === finish" [attr.aria-pressed]="o.finish === finish" (click)="select(o.finish)">
@@ -20,9 +45,11 @@
         </button>
         }
       </div>
+      } @else {
+      <span class="finish-chip chip-{{ finish }} on">{{ finishLabels[finish] }}</span>
+      }
       @if (obtained) {
       <p class="date">Obtenue le {{ obtained }}</p>
-      }
       }
       <p class="help">Glisse la carte pour la retourner.</p>
     </div>

@@ -24,6 +24,7 @@ export class NavbarComponent implements OnDestroy {
     this.links.push({ name: "Boutique", href: "boutique" })
     this.links.push({ name: "Inventaire", href: "inventaire" })
     this.links.push({ name: "Collection", href: "collection" })
+    this.links.push({ name: "Marché", href: "marche" })
     // ticks the free booster countdown
     this.clock = timer(0, 1000).subscribe(() => (this.now = Date.now()))
   }
