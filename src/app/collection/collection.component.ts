@@ -9,7 +9,7 @@ interface Entry {
 
 const FINISH_ORDER: Finish[] = ["FIRE", "HOLO", "NORMAL"]
 
-// All 300 cards: owned ones in color with their finishes, missing ones greyed out.
+// All 300 cards: owned ones in color with their finishes (click to inspect in 3D), missing ones greyed out.
 @Component({
   selector: "collection",
   templateUrl: "./collection.component.html",
@@ -23,6 +23,7 @@ export class CollectionComponent {
 
   rarity: Rarity | null = null
   ownedOnly = false
+  selected?: Entry // shown in the inspection dialog
 
   constructor(private _route: ActivatedRoute) {
     const cards: Card[] = this._route.snapshot.data["cards"]

@@ -16,6 +16,7 @@ import { InventoryComponent } from "inventory/inventory.component"
 import { OpeningComponent } from "opening/opening.component"
 import { CollectionComponent } from "collection/collection.component"
 import { BoosterOpeningComponent } from "booster-opening/booster-opening.component"
+import { CardInspectComponent } from "card-inspect/card-inspect.component"
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { BoosterOpeningComponent } from "booster-opening/booster-opening.compone
     OpeningComponent,
     CollectionComponent,
     BoosterOpeningComponent,
+    CardInspectComponent,
   ],
   imports: [
     BrowserModule,

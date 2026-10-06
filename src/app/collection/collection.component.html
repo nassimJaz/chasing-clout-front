@@ -20,16 +20,22 @@
 <div class="cards">
   @for (entry of shown; track entry.card.id) {
   <div class="entry">
-    <meme-card
-      [card]="entry.card"
-      [finish]="entry.owned.length ? entry.owned[0].finish : 'NORMAL'"
-      [missing]="entry.owned.length === 0"
-    ></meme-card>
+    @if (entry.owned.length) {
+    <button class="card-btn" [attr.aria-label]="'Inspecter ' + entry.card.name" (click)="selected = entry">
+      <meme-card [card]="entry.card" [finish]="entry.owned[0].finish"></meme-card>
+    </button>
+    } @else {
+    <meme-card [card]="entry.card" [missing]="true"></meme-card>
+    }
     <div class="owned">
       @for (owned of entry.owned; track owned.finish) {
-      <span class="badge finish-{{ owned.finish }}">{{ finishLabels[owned.finish] }} ×{{ owned.quantity }}</span>
+      <span class="finish-chip chip-{{ owned.finish }}">{{ finishLabels[owned.finish] }} ×{{ owned.quantity }}</span>
       }
     </div>
   </div>
   }
 </div>
+
+@if (selected) {
+<card-inspect [card]="selected.card" [owned]="selected.owned" (closed)="selected = undefined"></card-inspect>
+}

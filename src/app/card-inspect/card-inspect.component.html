@@ -1,0 +1,30 @@
+<div class="backdrop" (click)="onBackdrop($event)">
+  <div class="dialog" #dialog role="dialog" aria-modal="true" [attr.aria-label]="card.name">
+    <button class="close btn btn-outline-light" aria-label="Fermer" (click)="closed.emit()">✕</button>
+
+    <div class="stage" #stage [class.hidden]="fallback"></div>
+    @if (fallback) {
+    <div class="flat">
+      <meme-card [card]="card" [finish]="finish"></meme-card>
+    </div>
+    }
+
+    <div class="info">
+      <h2>{{ card.name }}</h2>
+      <p class="rarity" [style.color]="rarityColors[card.rarity]">{{ rarityLabels[card.rarity] }}</p>
+      @if (owned.length) {
+      <div class="finishes">
+        @for (o of owned; track o.finish) {
+        <button class="finish-chip chip-{{ o.finish }}" [class.on]="o.finish === finish" [attr.aria-pressed]="o.finish === finish" (click)="select(o.finish)">
+          {{ finishLabels[o.finish] }} ×{{ o.quantity }}
+        </button>
+        }
+      </div>
+      @if (obtained) {
+      <p class="date">Obtenue le {{ obtained }}</p>
+      }
+      }
+      <p class="help">Glisse la carte pour la retourner.</p>
+    </div>
+  </div>
+</div>

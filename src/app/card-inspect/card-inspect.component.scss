@@ -1,0 +1,106 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #0b0212d9;
+}
+
+.dialog {
+  position: relative;
+  display: flex;
+  width: min(960px, 100%);
+  height: min(640px, 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 35% 50%, #3a0a52, #12021b 75%);
+  color: #fff;
+}
+
+.stage {
+  flex: 1;
+  min-width: 0;
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.hidden {
+    display: none;
+  }
+
+  ::ng-deep canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.flat {
+  flex: 1;
+  display: grid;
+  place-items: center;
+
+  meme-card {
+    transform: scale(1.8);
+  }
+}
+
+.info {
+  width: 280px;
+  padding: 60px 24px 24px;
+  background: #00000040;
+}
+
+h2 {
+  font: 700 2.4em/1 Caveat, sans-serif;
+}
+
+.rarity {
+  font-weight: 700;
+}
+
+.finishes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.finish-chip {
+  border: 2px solid transparent;
+  opacity: 0.6;
+
+  &.on {
+    border-color: #fff;
+    opacity: 1;
+  }
+}
+
+.date,
+.help {
+  margin-top: 16px;
+  font-size: 0.9em;
+  color: #ffffffb3;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+@media (max-width: 700px) {
+  .dialog {
+    flex-direction: column;
+  }
+
+  .info {
+    width: auto;
+    padding: 16px;
+  }
+}
