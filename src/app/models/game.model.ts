@@ -43,6 +43,9 @@ export interface UserBooster {
   id: number
   code: string
   name: string
+  // the purchase it comes from; null for a gifted booster, missing with an older API
+  purchaseId?: number | null
+  format?: PurchaseFormat | null
 }
 
 export interface PulledCard {
@@ -93,6 +96,10 @@ export const FORMATS: { format: PurchaseFormat; label: string; count: number; mi
   { format: "DISPLAY_MEDIUM", label: "Display Medium", count: 30, mixable: true },
   { format: "DISPLAY_MEGA", label: "Display Méga", count: 60, mixable: true },
 ]
+
+export function formatCount(format: PurchaseFormat): number {
+  return FORMATS.find((f) => f.format === format)!.count
+}
 
 // Error message sent by the API ("Solde insuffisant"...), or a generic one.
 export function apiError(err: any): string {

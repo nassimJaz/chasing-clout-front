@@ -5,11 +5,23 @@
 }
 
 <div class="groups">
-  @for (group of groups; track group.code) {
+  @for (group of groups; track group.key) {
   <div class="group">
-    <div class="booster booster-{{ group.code }}">{{ group.name }}</div>
+    @if (group.purchaseId === null) {
+    <div class="booster booster-{{ group.codes[0] }}">{{ group.names[0] }}</div>
     <div class="count">×{{ group.ids.length }}</div>
     <a class="btn btn-dark" [routerLink]="['/ouverture', group.ids[0]]">Ouvrir</a>
+    } @else {
+    <div class="pack pack-{{ group.format }}">
+      @for (code of group.codes; track code) {
+      <div class="face booster-{{ code }}"></div>
+      }
+      <span>{{ group.label }}</span>
+    </div>
+    <div class="names">{{ group.names.join(" + ") }}</div>
+    <div class="left">{{ group.ids.length }} / {{ group.total }} restants</div>
+    <a class="btn btn-dark" [routerLink]="['/ouverture/box', group.purchaseId]">Ouvrir la box</a>
+    }
   </div>
   }
 </div>

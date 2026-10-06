@@ -17,6 +17,7 @@ import { OpeningComponent } from "opening/opening.component"
 import { CollectionComponent } from "collection/collection.component"
 import { BoosterOpeningComponent } from "booster-opening/booster-opening.component"
 import { CardInspectComponent } from "card-inspect/card-inspect.component"
+import { BoxOpeningComponent } from "box-opening/box-opening.component"
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { CardInspectComponent } from "card-inspect/card-inspect.component"
     CollectionComponent,
     BoosterOpeningComponent,
     CardInspectComponent,
+    BoxOpeningComponent,
   ],
   imports: [
     BrowserModule,

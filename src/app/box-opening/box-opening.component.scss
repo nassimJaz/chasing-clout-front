@@ -1,0 +1,131 @@
+:host {
+  display: block;
+}
+
+.stage {
+  height: calc(100vh - 80px);
+
+  &.hidden {
+    display: none;
+  }
+
+  // the cursor is set by the scene over a booster
+  &.idle {
+    cursor: default;
+  }
+}
+
+.top {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0;
+  color: #fff;
+  font: 700 1.8em Caveat, sans-serif;
+}
+
+.progress {
+  position: relative;
+  width: min(320px, 80%);
+  height: 22px;
+  border-radius: 11px;
+  background: #ffffff26;
+
+  .bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cc-purple), var(--cc-red));
+    transition: width 0.3s;
+  }
+
+  span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85em;
+  }
+}
+
+.all {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
+}
+
+.flat {
+  position: absolute;
+  inset: 90px 20px 70px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 12px;
+  overflow: auto;
+
+  .booster {
+    border: 0;
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.alert {
+  margin: 25px;
+}
+
+.top .alert {
+  margin: 0;
+}
+
+.recap {
+  padding: 25px;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 25px;
+  font-size: 1.1em;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.slot {
+  position: relative;
+
+  .finish-chip {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    z-index: 1;
+  }
+}
+
+.actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 10px;
+}

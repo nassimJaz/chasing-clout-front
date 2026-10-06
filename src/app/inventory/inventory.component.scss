@@ -6,6 +6,7 @@
 .groups {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: 30px;
 }
 
@@ -19,4 +20,71 @@
 .count {
   font-size: 1.5em;
   font-weight: 700;
+}
+
+.names {
+  font-weight: 500;
+}
+
+.left {
+  color: #666;
+}
+
+// A purchase: the booster colors (both halves for a mixed display), bigger with the format.
+.pack {
+  position: relative;
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px #0005;
+
+  .face {
+    flex: 1;
+  }
+
+  span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 8px;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 2px 6px #0008;
+    font: 700 1.7em Caveat, sans-serif;
+  }
+}
+
+// three boosters, the two behind peeking out
+.pack-TRI_PACK {
+  width: 140px;
+  height: 200px;
+  overflow: visible;
+  box-shadow: 10px -10px 0 -2px #c9c2d0, 20px -20px 0 -4px #a79db3, 0 6px 14px #0005;
+  border-top: 10px dashed #ffffff88;
+}
+
+// displays: a box with its lid
+.pack-DISPLAY_MINI,
+.pack-DISPLAY_MEDIUM,
+.pack-DISPLAY_MEGA {
+  border-top: 18px solid #0005;
+  border-radius: 6px;
+  transform: perspective(600px) rotateX(10deg);
+}
+
+.pack-DISPLAY_MINI {
+  width: 170px;
+  height: 130px;
+}
+
+.pack-DISPLAY_MEDIUM {
+  width: 220px;
+  height: 165px;
+}
+
+.pack-DISPLAY_MEGA {
+  width: 280px;
+  height: 205px;
+  font-size: 1.2em;
 }

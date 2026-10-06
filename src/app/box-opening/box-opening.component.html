@@ -1,0 +1,71 @@
+@if (empty) {
+<div class="alert alert-info">Il ne reste aucun booster à ouvrir dans cet achat. <a routerLink="/inventaire">Retour à l'inventaire</a></div>
+}
+
+<div class="stage cc-stage" #stage [class.hidden]="phase === 'recap' || empty" [class.idle]="phase !== 'closed'" (click)="onStageClick()">
+  @if (!current) {
+  <div class="top">
+    <p class="hint">{{ hint }}</p>
+    @if (phase === "all") {
+    <div class="progress" role="progressbar" [attr.aria-valuenow]="progress.done" [attr.aria-valuemax]="progress.total">
+      <div class="bar" [style.width.%]="(100 * progress.done) / progress.total"></div>
+      <span>{{ progress.done }} / {{ progress.total }}</span>
+    </div>
+    }
+    @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+    }
+  </div>
+  @if (phase === "closed" || phase === "grid") {
+  <button class="btn btn-light all" (click)="$event.stopPropagation(); openAll()">Tout ouvrir ({{ boosters.length }})</button>
+  }
+  @if (flat && phase === "grid") {
+  <div class="flat">
+    @for (b of boosters; track b.id) {
+    <button class="booster booster-{{ b.code }}" (click)="$event.stopPropagation(); pick(b.id)">{{ b.name }}</button>
+    }
+  </div>
+  }
+  } @else {
+  <booster-opening class="overlay" [cards]="current.cards" [booster]="current.booster" (done)="boosterDone()" (click)="$event.stopPropagation()"></booster-opening>
+  }
+</div>
+
+@if (phase === "recap") {
+<div class="recap">
+  <h1>{{ label }} {{ title }}</h1>
+  @if (error) {
+  <div class="alert alert-danger">{{ error }}. Les boosters restants sont toujours dans l'inventaire.</div>
+  }
+  <div class="summary">
+    @for (r of rarityCounts; track r.rarity) {
+    <span class="count" [style.color]="rarityColors[r.rarity]"><strong>{{ r.count }}</strong> {{ rarityLabels[r.rarity] }}</span>
+    }
+    @for (f of finishCounts; track f.finish) {
+    <span class="finish-chip chip-{{ f.finish }}">{{ finishLabels[f.finish] }} ×{{ f.count }}</span>
+    }
+  </div>
+
+  <div class="cards">
+    @for (pulled of sorted; track $index) {
+    <div class="slot">
+      <button class="card-btn" [attr.aria-label]="'Inspecter ' + pulled.card.name" (click)="inspect(pulled)">
+        <meme-card [card]="pulled.card" [finish]="pulled.finish"></meme-card>
+      </button>
+      @if (pulled.finish !== "NORMAL") {
+      <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-dark" routerLink="/inventaire">Inventaire</a>
+    <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
+  </div>
+</div>
+}
+
+@if (selected) {
+<card-inspect [card]="selected.card" [owned]="selected.owned" (closed)="selected = undefined"></card-inspect>
+}

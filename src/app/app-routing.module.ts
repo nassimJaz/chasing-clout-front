@@ -5,6 +5,7 @@ import { ShopComponent } from "shop/shop.component"
 import { InventoryComponent } from "inventory/inventory.component"
 import { OpeningComponent } from "opening/opening.component"
 import { CollectionComponent } from "collection/collection.component"
+import { BoxOpeningComponent } from "box-opening/box-opening.component"
 
 const routes: Routes = [
   { path: "", redirectTo: "boutique", pathMatch: "full" },
@@ -23,6 +24,7 @@ const routes: Routes = [
     },
   },
   // no resolver: opening is a POST, the component does it
+  { path: "ouverture/box/:purchaseId", component: BoxOpeningComponent },
   { path: "ouverture/:id", component: OpeningComponent },
   {
     path: "collection",
