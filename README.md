@@ -24,7 +24,7 @@ Changer de joueur recharge le solde et la page courante.
 |---|---|
 | `/boutique` | Vitrine 3D du pack configuré (type, format, display mixte 50/50), cotes en barres par rareté, prix par booster et économie par format ; après l'achat, « Ouvrir maintenant ». En bas, les cartes les plus rares à gagner |
 | `/inventaire` | Boosters non ouverts : un groupe par tri-pack ou display acheté, les autres groupés par type |
-| `/ouverture/:id` | Ouvre le booster (appel POST) en 3D : le paquet se déchire, les cartes se retournent une à une, puis un récap |
+| `/ouverture/:id` | Ouvre le booster (appel POST) en 3D : le paquet se déchire, les cartes se retournent une à une (une carte Secrète est annoncée par un fond doré avant d'être retournée), puis un récap |
 | `/ouverture/box/:purchaseId` | Ouvre un tri-pack ou un display : la box s'ouvre en 3D, on choisit ses boosters un par un ou « Tout ouvrir » |
 | `/collection` | Les 300 cartes, grisées si non possédées ; un clic ouvre la carte en 3D. Une carte possédée peut être mise en vente sur le marché ou vendue au système, qui la rachète à 50 % de son prix (il n'en vend pas) |
 | `/marche` | Les annonces des joueurs, avec l'écart au prix système ; « Acheter », ou « Retirer » sur ses propres annonces |

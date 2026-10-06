@@ -28,6 +28,9 @@ interface Burst {
   speeds: THREE.Vector3[]
 }
 
+// The backdrop behind the scene (CSS, the canvas is transparent): golden while a secret card is announced.
+export type Mood = "default" | "secret"
+
 export interface BoosterSceneOptions {
   // start with the cards already stacked (the booster was opened elsewhere, e.g. it comes out of a box)
   skipPack?: boolean
@@ -36,6 +39,7 @@ export interface BoosterSceneOptions {
 export class BoosterScene extends Stage {
   busy = false
   revealed = 0
+  onMood?: (mood: Mood) => void
 
   private flash = new THREE.PointLight("#ffffff", 0, 30)
   private booster = new THREE.Group()
@@ -47,6 +51,7 @@ export class BoosterScene extends Stage {
   private shake = { amount: 0 }
   private cameraZ = 10
   private tearing = false
+  private mood: Mood = "default"
 
   constructor(
     container: HTMLElement,
@@ -119,11 +124,21 @@ export class BoosterScene extends Stage {
       this.revealed++
       this.presented = card
       const big = card.level >= 4
+      const secret = card.card.rarity === "SECRET"
       tl.to(card.root.position, { ...PRESENT, duration: 0.55, ease: "power3.out" }, 0.1)
         .to(card.root.rotation, { z: 0, duration: 0.55 }, 0.1)
+      // a secret card is announced as soon as it comes forward: golden backdrop and light, longer wait
+      if (secret) {
+        tl.call(() => this.setMood("secret"), [], 0.1)
+          .set(this.flash.color, { r: 1, g: 0.8, b: 0.35 }, 0.1)
+          .to(this.flash, { intensity: 15, duration: 1.2, ease: "sine.inOut" }, 0.2)
+      }
       // suspense: the big ones tremble before turning
-      const flipAt = big ? 1.2 : 0.5
-      if (big) tl.to(card.root.position, { x: 0.04, duration: 0.05, repeat: 9, yoyo: true }, 0.65).set(card.root.position, { x: 0 })
+      const flipAt = secret ? 1.8 : big ? 1.2 : 0.5
+      if (big) {
+        const shakes = secret ? 19 : 9
+        tl.to(card.root.position, { x: 0.04, duration: 0.05, repeat: shakes, yoyo: true }, 0.65).set(card.root.position, { x: 0 })
+      }
       tl.to(card.flip.rotation, { y: 0, duration: 0.8, ease: "back.out(1.6)" }, flipAt)
         .call(() => this.revealEffects(card), [], flipAt + 0.2)
       if (big) tl.to({}, { duration: 0.8 }) // longer pause on the big pulls
@@ -304,5 +319,12 @@ export class BoosterScene extends Stage {
       0,
     ).to(card.root.scale, { x: ROW_SCALE, y: ROW_SCALE, z: ROW_SCALE, duration: 0.6, ease: "power2.inOut" }, 0)
     if (card.fire) tl.call(() => setFire(card.fire!, false), [], 0)
+    if (card.card.rarity === "SECRET") tl.call(() => this.setMood("default"), [], 0)
+  }
+
+  private setMood(mood: Mood): void {
+    if (mood === this.mood) return
+    this.mood = mood
+    this.onMood?.(mood)
   }
 }

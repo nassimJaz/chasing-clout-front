@@ -5,10 +5,67 @@
 
 .stage {
   height: 100%;
+
+  ::ng-deep canvas {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// gold and night, rays turning behind the card and drifting glitter
+.mood {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, #7a5410, #2b1904 45%, #080402 80%);
+  transition: opacity 0.8s ease;
+
+  .secret & {
+    opacity: 1;
+  }
+
+  i {
+    position: absolute;
+  }
+}
+
+.rays {
+  inset: -60%;
+  background: repeating-conic-gradient(#ffd76a2e 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 5%, transparent 45%);
+  mask-image: radial-gradient(circle, #000 5%, transparent 45%);
+  animation: rays 40s linear infinite;
+}
+
+.glitter {
+  inset: 0 0 -50%;
+  background-image: radial-gradient(circle, #ffe9a8 0 1px, transparent 2px), radial-gradient(circle, #ffd76a 0 1.5px, transparent 2.5px);
+  background-size: 110px 130px, 190px 170px;
+  background-position: 0 0, 47px 61px;
+  opacity: 0.7;
+  animation: glitter 14s linear infinite;
+}
+
+@keyframes rays {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glitter {
+  to { transform: translateY(-33%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rays,
+  .glitter {
+    display: none;
+  }
 }
 
 .hint {
   position: absolute;
+  z-index: 2;
   top: 18px;
   left: 0;
   right: 0;
@@ -21,6 +78,7 @@
 
 .skip {
   position: absolute;
+  z-index: 2;
   top: 18px;
   right: 18px;
 }

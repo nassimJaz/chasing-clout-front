@@ -1,4 +1,6 @@
-<div class="stage cc-stage" #stage (click)="onClick()">
+<div class="stage cc-stage" #stage [class.secret]="mood === 'secret'" (click)="onClick()">
+  <!-- secret mood: layers faded in with opacity behind the transparent canvas -->
+  <div class="mood" aria-hidden="true"><i class="rays"></i><i class="glitter"></i></div>
   @if (phase === "loading") {
   <p class="hint">Ouverture…</p>
   } @else {

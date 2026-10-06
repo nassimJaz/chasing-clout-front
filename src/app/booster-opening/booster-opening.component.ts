@@ -10,7 +10,7 @@ import {
   ViewChild,
 } from "@angular/core"
 import { PulledCard } from "models/game.model"
-import type { BoosterScene } from "../three/booster-scene"
+import type { BoosterScene, Mood } from "../three/booster-scene"
 
 type Phase = "loading" | "pack" | "stack"
 
@@ -31,6 +31,7 @@ export class BoosterOpeningComponent implements OnChanges, OnDestroy {
 
   phase: Phase = "loading"
   index = 0 // cards revealed so far
+  mood: Mood = "default" // golden backdrop while a secret card is announced
 
   private scene?: BoosterScene
   private run = 0 // bumped on each start, so a late init of the previous scene is ignored
@@ -71,6 +72,7 @@ export class BoosterOpeningComponent implements OnChanges, OnDestroy {
   }
 
   private stop(): void {
+    this.mood = "default"
     this.run++
     this.scene?.dispose()
     this.scene = undefined
@@ -88,6 +90,7 @@ export class BoosterOpeningComponent implements OnChanges, OnDestroy {
       const scene = new BoosterScene(this.stage.nativeElement, this.cards, this.booster?.name ?? "Booster", this.booster?.code ?? "", {
         skipPack: this.skipPack,
       })
+      scene.onMood = (mood) => this._zone.run(() => (this.mood = mood))
       this.scene = scene
       await this._zone.runOutsideAngular(() => scene.init())
       if (run === this.run) this.phase = this.skipPack ? "stack" : "pack"
