@@ -3,6 +3,7 @@ import { Card, Finish, RARITY_LABELS } from "models/game.model"
 import { GameService } from "services/game.service"
 
 // One card. faceDown shows its back (flips when it turns false), missing greys it out (collection).
+// The finish effects (blend modes, animated shadow) only apply face up: they can make some GPUs ignore backface-visibility.
 @Component({
   selector: "meme-card",
   templateUrl: "./meme-card.component.html",

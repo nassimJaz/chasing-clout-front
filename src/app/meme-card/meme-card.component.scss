@@ -20,12 +20,13 @@
   position: absolute;
   inset: 0;
   border-radius: 10px;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   overflow: hidden;
 }
 
 .back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
   display: grid;
   place-items: center;
   border: 4px solid #fff;
@@ -39,6 +40,7 @@
 
 .front {
   --rarity: #9e9e9e;
+  transform: rotateY(0deg);
   display: flex;
   flex-direction: column;
   background: #fff;
