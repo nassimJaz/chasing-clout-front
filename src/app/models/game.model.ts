@@ -69,6 +69,16 @@ export const RARITY_LABELS: Record<Rarity, string> = {
   SECRET: "Secrète",
 }
 
+// Same colors as meme-card.component.scss (used by the 3D scenes).
+export const RARITY_COLORS: Record<Rarity, string> = {
+  COMMON: "#9e9e9e",
+  UNCOMMON: "#43a047",
+  RARE: "#1e88e5",
+  VERY_RARE: "#8e24aa",
+  ULTRA_RARE: "#fb8c00",
+  SECRET: "#c9a227",
+}
+
 export const FINISH_LABELS: Record<Finish, string> = {
   NORMAL: "Normale",
   HOLO: "Holo",

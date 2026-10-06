@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.stage {
+  height: 100%;
+}
+
+.hint {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  font: 700 1.8em Caveat, sans-serif;
+  pointer-events: none;
+}
+
+.skip {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}

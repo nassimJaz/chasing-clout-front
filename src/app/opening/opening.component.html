@@ -1,18 +1,10 @@
 @if (error) {
 <div class="alert alert-danger">{{ error }} — <a routerLink="/inventaire">retour à l'inventaire</a></div>
-}
-
-<div class="stage" #stage [class.hidden]="phase === 'recap' || error" (click)="onStageClick()">
-  @if (phase === "loading" && !error) {
-  <p class="hint">Ouverture…</p>
-  }
-  @if (phase === "pack" || phase === "stack") {
-  <p class="hint">{{ hint }}</p>
-  <button class="btn btn-outline-light skip" (click)="$event.stopPropagation(); recap()">Passer</button>
-  }
-</div>
-
-@if (phase === "recap") {
+} @else if (phase === "loading") {
+<div class="play cc-stage"><p class="hint">Ouverture…</p></div>
+} @else if (phase === "playing") {
+<booster-opening class="play" [cards]="cards" [booster]="booster" (done)="recap()"></booster-opening>
+} @else {
 <div class="recap">
   <h1>Ouverture</h1>
   <div class="cards">
@@ -20,7 +12,7 @@
     <div class="slot">
       <meme-card [card]="pulled.card" [finish]="pulled.finish"></meme-card>
       @if (pulled.finish !== "NORMAL") {
-      <span class="finish finish-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
+      <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
       }
     </div>
     }

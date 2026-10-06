@@ -2,42 +2,18 @@
   display: block;
 }
 
-// The 3D scene fills the page under the navbar; booster-scene.ts appends its canvas here.
-.stage {
-  position: relative;
+// the 3D scene fills the page under the navbar
+.play {
+  display: block;
   height: calc(100vh - 80px);
-  overflow: hidden;
-  cursor: pointer;
-  user-select: none;
-  background: radial-gradient(ellipse at center, #3a0a52, #12021b 75%);
-
-  &.hidden {
-    display: none;
-  }
-
-  ::ng-deep canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
 }
 
 .hint {
-  position: absolute;
-  top: 18px;
-  left: 0;
-  right: 0;
   margin: 0;
+  padding-top: 18px;
   text-align: center;
   color: #fff;
   font: 700 1.8em Caveat, sans-serif;
-  pointer-events: none;
-}
-
-.skip {
-  position: absolute;
-  top: 18px;
-  right: 18px;
 }
 
 .alert {
@@ -58,24 +34,11 @@
   position: relative;
 }
 
-.finish {
+.finish-chip {
   position: absolute;
   top: -10px;
   right: -10px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.8em;
   z-index: 1;
-}
-
-.finish-HOLO {
-  background: linear-gradient(90deg, #ff00aa, #00c3ff);
-}
-
-.finish-FIRE {
-  background: linear-gradient(90deg, #ff3c00, #ffae00);
 }
 
 .actions {

@@ -52,3 +52,57 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .booster-COLLECTION {
   background: linear-gradient(160deg, #f9e27d, #c9a227 50%, #8d6e00);
 }
+
+// A dark backdrop for the 3D scenes (three appends its canvas inside).
+.cc-stage {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  background: radial-gradient(ellipse at center, #3a0a52, #12021b 75%);
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// A finish badge: <span class="finish-chip chip-{{ finish }}">
+.finish-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #666;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8em;
+}
+
+.chip-HOLO {
+  background: linear-gradient(90deg, #ff00aa, #00c3ff);
+}
+
+.chip-FIRE {
+  background: linear-gradient(90deg, #ff3c00, #ffae00);
+}
+
+// A clickable card (collection, recaps): <button class="card-btn"><meme-card>
+.card-btn {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--cc-purple);
+    outline-offset: 4px;
+  }
+}

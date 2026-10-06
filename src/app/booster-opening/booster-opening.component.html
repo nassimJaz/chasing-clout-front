@@ -1,0 +1,8 @@
+<div class="stage cc-stage" #stage (click)="onClick()">
+  @if (phase === "loading") {
+  <p class="hint">Ouverture…</p>
+  } @else {
+  <p class="hint">{{ hint }}</p>
+  <button class="btn btn-outline-light skip" (click)="$event.stopPropagation(); finish()">Passer</button>
+  }
+</div>
