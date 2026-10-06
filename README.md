@@ -36,10 +36,10 @@ compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est tr
 - `services/game.service.ts` : tous les appels à l'API, et `profile$` (le solde de la navbar)
 - `models/game.model.ts` : les types des réponses de l'API (miroir des DTO), les libellés français des raretés, finitions et formats
 - `services/player.service.ts` : le joueur courant ; `services/user-id.interceptor.ts` : le header `X-User-Id`
-- `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo, bordure de flammes via le filtre SVG
-  `#cc-fire` défini une fois dans `app.component.html`), utilisée par les grilles
+- `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo ; auréole arc-en-ciel et braises
+  pour la finition Enflammée), utilisée par les grilles
 - `three/` : les scènes 3D (Three.js + GSAP), toujours chargées en `import()` pour rester hors du bundle initial :
-  `stage.ts` (socle commun), `card-art.ts` (cartes, holo, feu en shader) et `pack-art.ts` (boosters et box), `booster-scene.ts`,
+  `stage.ts` (socle commun), `card-art.ts` (cartes, holo, auréole et braises de la finition Enflammée) et `pack-art.ts` (boosters et box), `booster-scene.ts`,
   `box-scene.ts`, `card-viewer.ts`, `shop-scene.ts`
 - `booster-opening/` : le déroulé 3D d'un booster, utilisé par `/ouverture/:id` et par la box
 - `card-inspect/` : la modale 3D d'une carte (collection, récaps, marché)

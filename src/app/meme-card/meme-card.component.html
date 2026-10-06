@@ -1,6 +1,7 @@
 <div class="inner" [class.face-down]="faceDown">
   @if (!faceDown && finish === "FIRE") {
-  <div class="flames" aria-hidden="true"></div>
+  <div class="halo" aria-hidden="true"></div>
+  <div class="embers" aria-hidden="true"></div>
   }
   <div class="face back"><span>CC</span></div>
   <div class="face front rarity-{{ card.rarity }} {{ faceDown ? '' : 'finish-' + finish }}" [class.missing]="missing">

@@ -83,8 +83,10 @@
   opacity: 0.3;
 }
 
-// Holo: a rainbow sheen sliding over the card.
-.finish-HOLO::after {
+// Holo: a rainbow sheen sliding over the card. Fire cards have it too, under their halo
+// (.halo and .embers, styled in src/styles.scss for the budget of this file).
+.finish-HOLO::after,
+.finish-FIRE::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -94,18 +96,6 @@
   mix-blend-mode: color-dodge;
   animation: holo 3s linear infinite alternate;
 }
-
-// Fire: the inner heat at the bottom of the card...
-.finish-FIRE::after {
-  content: "";
-  position: absolute;
-  inset: 40% 0 0;
-  pointer-events: none;
-  background: linear-gradient(to top, #ff3c00cc, #ffae0055 50%, transparent);
-  mix-blend-mode: screen;
-}
-
-// ...and a border of flames behind it: .flames, styled in src/styles.scss (budget of this file).
 
 @keyframes holo {
   to { background-position: 100% 100%; }

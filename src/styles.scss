@@ -107,51 +107,56 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-// Holds the SVG filters of app.component.html without taking room.
-.cc-filters {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
+// <meme-card finish="FIRE">: a blurred rainbow halo turning behind the card, and a few embers rising
+// beside it (the card also gets the holo sheen). Here rather than in the component, for its style budget.
+@property --cc-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
 }
 
-// <meme-card finish="FIRE">: a border of flames behind the card, its edges torn by the #cc-fire filter
-// (app.component.html), with embers rising. Here rather than in the component, for its style budget.
-meme-card .flames {
+meme-card .halo,
+meme-card .embers {
   position: absolute;
-  inset: -16px -11px -8px;
-  border-radius: 18px;
-  transform: translateZ(-1px);
-  background: linear-gradient(to top, #c81e00, #ff6a00 25%, #ffd23c 50%, #ff6a0088 75%, transparent);
-  box-shadow: 0 6px 26px 4px #ff4a0080;
-  filter: url(#cc-fire);
   pointer-events: none;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -30px 0 0;
-    background:
-      radial-gradient(circle at 4% 70%, #ffd23c 0 2px, transparent 3px),
-      radial-gradient(circle at 96% 60%, #ffae00 0 2px, transparent 3px),
-      radial-gradient(circle at 30% 12%, #ffd23c 0 1.5px, transparent 2.5px),
-      radial-gradient(circle at 72% 18%, #ff6a00 0 2px, transparent 3px);
-    animation: embers 1.8s linear infinite;
-  }
+  transform: translateZ(-1px);
 }
 
-@keyframes embers {
-  from { transform: translateY(20px); opacity: 1; }
-  to { transform: translateY(-40px); opacity: 0; }
+meme-card .halo {
+  inset: -7px;
+  border-radius: 16px;
+  background: conic-gradient(from var(--cc-angle), #ff3b6b, #ffb800, #c6ff3d, #2ee6d6, #3d7bff, #b04dff, #ff3b6b);
+  filter: blur(9px);
+  opacity: 0.8;
+  animation: cc-halo 6s linear infinite;
+}
+
+meme-card .embers {
+  inset: -40px -10px -6px;
+  background:
+    radial-gradient(circle at 3% 80%, #ffd23c 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 97% 70%, #ffae00 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 5% 40%, #ff8a00 0 1px, transparent 2px),
+    radial-gradient(circle at 95% 30%, #ffd23c 0 1px, transparent 2px);
+  animation: cc-embers 2.6s ease-in infinite;
+}
+
+@keyframes cc-halo {
+  to { --cc-angle: 360deg; }
+}
+
+@keyframes cc-embers {
+  from { transform: translateZ(-1px) translateY(16px); opacity: 0; }
+  20% { opacity: 1; }
+  to { transform: translateZ(-1px) translateY(-36px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  meme-card .flames {
-    filter: url(#cc-fire-still);
+  meme-card .halo {
+    animation: none;
+  }
 
-    &::before {
-      animation: none;
-      opacity: 0.6;
-    }
+  meme-card .embers {
+    display: none;
   }
 }
