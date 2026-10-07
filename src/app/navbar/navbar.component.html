@@ -1,35 +1,28 @@
-<nav>
-  <div>
+<nav class="glass" aria-label="Navigation principale">
+  <div class="bar">
     <a class="brand" routerLink="">Chasing Clout</a>
-    <mat-nav-list>
-      @for (link of links; track link) {
-      <a mat-list-item routerLink="{{ link.href }}" routerLinkActive="active">
-        <span>{{ link.name }}</span>
-      </a>
-      }
-    </mat-nav-list>
-    @if (game.profile$ | async; as profile) {
-    <div class="free">
-      @if (countdown(profile.nextFreeBoosterAt); as left) {
-      <button class="btn btn-outline-light" disabled>Booster gratuit dans {{ left }}</button>
-      } @else {
-      <button class="btn btn-light" [disabled]="claiming" (click)="claimFree()">Booster gratuit</button>
-      }
-      @if (freeError) {
-      <span class="toast" role="alert">{{ freeError }}</span>
+    <div class="links">
+      @for (link of links; track link.href) {
+      <a [routerLink]="link.href" routerLinkActive="active">{{ link.name }}</a>
       }
     </div>
-    <span class="balance">{{ balance ?? profile.memeBalance }} memes</span>
+    @if (game.profile$ | async; as profile) {
+    <span class="balance tabular" [attr.aria-label]="'Solde : ' + (balance ?? profile.memeBalance) + ' memes'">
+      <i class="coin" aria-hidden="true"></i>{{ balance ?? profile.memeBalance }}
+    </span>
+    @if (countdown(profile.nextFreeBoosterAt); as left) {
+    <button class="btn btn-quiet btn-sm tabular" disabled>Booster gratuit dans {{ left }}</button>
+    } @else {
+    <button class="btn btn-quiet btn-sm" [disabled]="claiming" (click)="claimFree()">Booster gratuit</button>
     }
-    <select
-      class="form-select player"
-      aria-label="Joueur"
-      [ngModel]="player.playerId$ | async"
-      (ngModelChange)="switchPlayer($event)"
-    >
+    }
+    <select class="field player" aria-label="Joueur" [ngModel]="player.playerId$ | async" (ngModelChange)="switchPlayer($event)">
       @for (p of players; track p.id) {
       <option [ngValue]="p.id">{{ p.name }}</option>
       }
     </select>
   </div>
 </nav>
+@if (freeError) {
+<p class="toast notice notice-error" role="alert">{{ freeError }}</p>
+}

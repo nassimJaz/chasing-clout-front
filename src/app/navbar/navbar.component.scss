@@ -1,84 +1,98 @@
+// glass over the page: what scrolls passes under it
 nav {
-  height: 80px;
-  background: linear-gradient(to right, var(--cc-purple), var(--cc-red));
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  border-width: 0 0 1px;
+  border-radius: 0;
+}
 
-  > div {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    // small screens: the bar scrolls sideways instead of widening the page
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  padding: 0 20px;
+  // small screens: the bar scrolls sideways instead of widening the page
+  overflow-x: auto;
+  scrollbar-width: none;
 
-  > div > * {
+  > * {
     flex-shrink: 0;
   }
 }
 
 .brand {
-  margin-left: 20px;
-  font: 700 2.4em Caveat, sans-serif;
-  color: #fff;
+  margin-right: 12px;
+  font: 700 1.9rem/1 Caveat, sans-serif;
+  color: var(--text);
   text-decoration: none;
-  transition: 0.3s;
-
-  &:hover {
-    transform: scale(1.1);
-  }
 }
 
-mat-nav-list {
-  margin-left: 50px;
+.links {
   display: flex;
-  flex-direction: row;
+  gap: 4px;
+  margin-right: auto;
 
   a {
-    width: max-content;
-  }
-
-  span,
-  a {
-    font-size: large;
-    color: #fff;
-    transition: 0.3s;
+    position: relative;
+    padding: 8px 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
 
     &:hover {
-      transform: scale(1.2);
+      color: var(--text);
+    }
+
+    // the active page: a glowing violet line
+    &.active {
+      color: var(--text);
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: -2px;
+        height: 2px;
+        border-radius: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 12px 1px var(--accent-glow);
+      }
     }
   }
 }
 
-.free {
-  position: relative;
-  margin-left: auto;
+.balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold);
+  font-weight: 700;
 }
 
-// the API's answer when the free booster is refused
-// fixed: the bar scrolls on small screens and would clip it
-.toast {
-  position: fixed;
-  top: 88px;
-  right: 16px;
-  z-index: 10;
-  width: max-content;
-  max-width: 260px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: #fff;
-  color: var(--cc-red);
-  font-size: 0.85em;
-  box-shadow: 0 4px 10px #0004;
+.coin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3c4, var(--gold) 55%, #a87a12);
+  box-shadow: 0 0 10px #f2c14e66;
 }
 
 .player {
-  width: auto;
-  margin-right: 20px;
+  min-height: 32px;
+  font-size: 0.85rem;
 }
 
-.balance {
-  margin: 0 15px 0 20px;
-  font-size: large;
-  font-weight: 500;
-  color: #fff;
+// the API's answer when the free booster is refused
+.toast {
+  position: fixed;
+  top: calc(var(--nav-h) + 10px);
+  right: 16px;
+  z-index: 101;
+  max-width: 280px;
+  font-size: 0.9rem;
 }

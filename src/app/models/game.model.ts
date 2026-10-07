@@ -112,6 +112,16 @@ export const RARITY_COLORS: Record<Rarity, string> = {
   SECRET: "#c9a227",
 }
 
+// Rarity colors for text on the dark theme (the card frames keep RARITY_COLORS): all AA on the background.
+export const RARITY_TEXT: Record<Rarity, string> = {
+  COMMON: "#9e9e9e",
+  UNCOMMON: "#6ccb70",
+  RARE: "#5aaeff",
+  VERY_RARE: "#c98be0",
+  ULTRA_RARE: "#fb8c00",
+  SECRET: "#c9a227",
+}
+
 export const FINISH_LABELS: Record<Finish, string> = {
   NORMAL: "Normale",
   HOLO: "Holo",

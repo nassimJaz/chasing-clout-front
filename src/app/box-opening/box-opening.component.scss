@@ -3,7 +3,7 @@
 }
 
 .stage {
-  height: calc(100vh - 80px);
+  height: calc(100vh - var(--nav-h));
 
   &.hidden {
     display: none;
@@ -43,7 +43,7 @@
 
   .bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--cc-purple), var(--cc-red));
+    background: linear-gradient(90deg, var(--accent), var(--accent-text));
     transition: width 0.3s;
   }
 

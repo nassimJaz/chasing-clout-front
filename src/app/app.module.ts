@@ -3,12 +3,8 @@ import { BrowserModule } from "@angular/platform-browser"
 
 import { AppRoutingModule } from "app-routing.module"
 import { AppComponent } from "app.component"
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations"
 import { NavbarComponent } from "navbar/navbar.component"
-import { MatListModule } from "@angular/material/list"
 import { FormsModule } from "@angular/forms"
-import { MatIconModule } from "@angular/material/icon"
-import { MatButtonModule } from "@angular/material/button"
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http"
 import { MemeCardComponent } from "meme-card/meme-card.component"
 import { ShopComponent } from "shop/shop.component"
@@ -38,11 +34,7 @@ import { UserIdInterceptor } from "services/user-id.interceptor"
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
-    MatListModule,
     FormsModule,
-    MatIconModule,
-    MatButtonModule,
     HttpClientModule,
   ],
   // every API call says who is playing (X-User-Id)
