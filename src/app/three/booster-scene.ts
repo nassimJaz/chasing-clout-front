@@ -318,7 +318,8 @@ export class BoosterScene extends Stage {
       { x: (i - (n - 1) / 2) * gap, y: -halfH + (CARD_H * ROW_SCALE) / 2 + 0.2, z, duration: 0.6, ease: "power2.inOut" },
       0,
     ).to(card.root.scale, { x: ROW_SCALE, y: ROW_SCALE, z: ROW_SCALE, duration: 0.6, ease: "power2.inOut" }, 0)
-    if (card.fire) tl.call(() => setFire(card.fire!, false), [], 0)
+    // no flames on the way down: cut as it leaves
+    if (card.fire) tl.call(() => setFire(card.fire!, false, true), [], 0)
     if (card.card.rarity === "SECRET") tl.call(() => this.setMood("default"), [], 0)
   }
 

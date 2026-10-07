@@ -83,8 +83,8 @@
   opacity: 0.3;
 }
 
-// Holo: a rainbow sheen sliding over the card. Fire cards have it too, under their halo
-// (.halo and .embers, styled in src/styles.scss for the budget of this file).
+// Holo: a rainbow sheen sliding over the card. Fire cards have it too, inside their border of flames
+// (.flames, styled in src/styles.scss for the budget of this file).
 .finish-HOLO::after,
 .finish-FIRE::after {
   content: "";
