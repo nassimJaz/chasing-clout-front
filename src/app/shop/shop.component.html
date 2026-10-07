@@ -1,5 +1,5 @@
-<section class="window">
-  <div class="stage cc-stage" #stage aria-hidden="true">
+<section class="hero">
+  <div class="stage cc-stage" #stage aria-hidden="true" (click)="skipIntro()">
     @if (flat) {
     <div class="flat booster-{{ type.code }}">
       <span>{{ type.name }}</span>
@@ -7,9 +7,12 @@
     }
   </div>
 
-  <div class="config">
+  <div class="title" #title>
     <h1>Boutique</h1>
+    <p>Choisis un booster et un format, la vitrine te montre ce que tu achètes.</p>
+  </div>
 
+  <div class="config glass">
     <div class="types" role="radiogroup" aria-label="Type de booster">
       @for (b of boosters; track b.id) {
       <button
@@ -49,8 +52,8 @@
         }
         <span class="thumb thumb-{{ t.format }} booster-{{ type.code }}"></span>
         <span class="label">{{ t.label }} <small>×{{ t.count }}</small></span>
-        <span class="total">{{ t.total }} memes</span>
-        <span class="per">
+        <span class="total tabular">{{ t.total }} memes</span>
+        <span class="per tabular">
           {{ t.perBooster | number: "1.0-0" }} / booster
           @if (t.saving > 0) {
           <b>−{{ t.saving }} %</b>
@@ -62,16 +65,16 @@
 
     @if (mixable) {
     <div class="mix">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="mixed" [ngModel]="mixed" (ngModelChange)="setMixed($event)" />
-        <label class="form-check-label" for="mixed">Mixte 50/50</label>
-      </div>
+      <label class="check">
+        <input class="switch" type="checkbox" role="switch" [ngModel]="mixed" (ngModelChange)="setMixed($event)" />
+        Mixte 50/50
+      </label>
       @if (mixed) {
       <span>avec</span>
       @for (b of boosters; track b.id) {
       @if (b.id !== boosterId) {
-      <button class="swatch" [class.selected]="b.id === secondBoosterId" [attr.aria-pressed]="b.id === secondBoosterId" (click)="selectSecond(b.id)">
-        <i class="booster-{{ b.code }}"></i>{{ b.name }}
+      <button class="chip" [class.on]="b.id === secondBoosterId" [attr.aria-pressed]="b.id === secondBoosterId" (click)="selectSecond(b.id)">
+        <i class="dot booster-{{ b.code }}"></i>{{ b.name }}
       </button>
       }
       }
@@ -80,19 +83,21 @@
     }
 
     @if (game.profile$ | async; as profile) {
-    <button class="buy" [disabled]="buying || profile.memeBalance < price" (click)="buy()">Acheter · {{ price }} memes</button>
+    <button class="btn btn-primary buy" [disabled]="buying || profile.memeBalance < price" (click)="buy()">
+      Acheter · <span class="tabular">{{ price }}</span> memes
+    </button>
     @if (profile.memeBalance < price) {
-    <p class="short">Il te manque {{ price - profile.memeBalance }} memes</p>
+    <p class="short">Il te manque <span class="tabular">{{ price - profile.memeBalance }}</span> memes</p>
     }
     }
     @if (purchase) {
-    <p class="done" role="status">
+    <p class="notice notice-ok done" role="status">
       C'est dans ton inventaire.
-      <button class="btn btn-light btn-sm" (click)="openNow()">Ouvrir maintenant</button>
+      <button class="btn btn-quiet btn-sm" (click)="openNow()">Ouvrir maintenant</button>
     </p>
     }
     @if (error) {
-    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    <p class="notice notice-error" role="alert">{{ error }}</p>
     }
   </div>
 </section>

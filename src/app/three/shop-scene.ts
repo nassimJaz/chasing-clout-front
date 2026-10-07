@@ -1,12 +1,16 @@
 import * as THREE from "three"
 import { gsap } from "gsap"
-import { BoosterType, FORMATS, PurchaseFormat } from "models/game.model"
-import { loadFonts, sparkMaterial } from "./card-art"
+import { BoosterType, Card, FORMATS, PurchaseFormat } from "models/game.model"
+import { CARD_H, createCardObject, drawCardBack, loadFonts, loadImage, sparkMaterial } from "./card-art"
 import { boosterColors, buildPack, Pack, PackBooster } from "./pack-art"
 import { Stage } from "./stage"
 
 // The shop window: what is being bought (a booster, a tri-pack or a display, two-colored when mixed)
-// on a lit stand. It turns into the next pack live when the type or the format changes.
+// on a lit stand, with a fan of the rarest cards behind it. It turns into the next pack live when the
+// type or the format changes. On the first visit it plays an arrival: lights on, the pack drops in.
+
+// the fan of rare cards behind the pack: angles of each card, around their bottom
+const FAN_ANGLES = [-0.62, -0.31, 0, 0.31, 0.62]
 
 interface Burst {
   points: THREE.Points
@@ -22,13 +26,16 @@ export class ShopScene extends Stage {
   private bursts: Burst[] = []
   private height = 4.8 // of the current pack, for the float and the camera
   private look = new THREE.Vector3()
+  private fan = new THREE.Group()
+  private fanPivots: THREE.Group[] = []
+  private shift = 0 // px the view is moved by, for the configuration panel
 
   constructor(container: HTMLElement, private reducedMotion: boolean) {
     super(container)
   }
 
-  // Throws when WebGL is not available.
-  async init(type: BoosterType, format: PurchaseFormat, second?: BoosterType): Promise<void> {
+  // Throws when WebGL is not available. intro: start dark, for intro() to light it up.
+  async init(type: BoosterType, format: PurchaseFormat, second?: BoosterType, intro = false): Promise<void> {
     this.setup()
     await loadFonts()
     if (this.disposed) return
@@ -48,9 +55,55 @@ export class ShopScene extends Stage {
     this.spot.position.set(0, 9, 6)
     this.scene.add(this.spot, this.spot.target)
 
+    this.holder.add(this.fan)
     this.place(type, format, second)
     this.fit(1, true)
+    if (intro) {
+      this.spot.intensity = 0
+      this.glow.opacity = 0
+      this.pack!.group.position.y = this.height * 1.8
+    }
     this.start()
+  }
+
+  // The arrival, about 1.5 s: the lights come on, the pack drops onto its stand, the fan opens behind
+  // it (as soon as its cards are loaded, see setFan). Returned so a click can jump to its end.
+  intro(): gsap.core.Timeline {
+    const tl = this.timeline()
+    tl.to(this.spot, { intensity: 60, duration: 0.7, ease: "power2.in" }, 0)
+      .to(this.glow, { opacity: 0.4, duration: 0.5 }, 0.3)
+      .to(this.pack!.group.position, { y: 0, duration: 0.9, ease: "bounce.out" }, 0.35)
+    if (this.fanPivots.length) this.spread(tl, 0.6)
+    return tl
+  }
+
+  // Up to 5 rare cards fanned behind the pack, holo side out. Opens them at once, or animated when
+  // still arriving.
+  async setFan(cards: Card[], animate: boolean): Promise<void> {
+    if (this.disposed || !this.renderer) return
+    const back = this.texture(drawCardBack())
+    const images = await Promise.all(cards.slice(0, FAN_ANGLES.length).map((c) => loadImage(c.imageUrl)))
+    if (this.disposed) return
+    images.forEach((image, i) => {
+      const card = createCardObject(this.kit, { card: cards[i], finish: "HOLO" }, back, image)
+      card.flip.rotation.y = 0
+      card.root.position.y = CARD_H / 2 // pivots around its bottom
+      const pivot = new THREE.Group()
+      pivot.add(card.root)
+      pivot.position.z = -Math.abs(i - (images.length - 1) / 2) * 0.05
+      pivot.scale.setScalar(0.001)
+      this.fan.add(pivot)
+      this.fanPivots.push(pivot)
+    })
+    const tl = this.timeline()
+    this.spread(tl, 0, animate ? 0.8 : 0)
+  }
+
+  private spread(tl: gsap.core.Timeline, at: number, duration = 0.8): void {
+    const n = this.fanPivots.length
+    const angles = FAN_ANGLES.slice((FAN_ANGLES.length - n) >> 1)
+    tl.to(this.fanPivots.map((p) => p.scale), { x: 1, y: 1, z: 1, duration: duration * 0.5, ease: "back.out(1.6)", stagger: 0.04 }, at)
+      .to(this.fanPivots.map((p) => p.rotation), { z: (i: number) => -angles[i], duration, ease: "power3.out", stagger: 0.04 }, at + 0.1)
   }
 
   // Shrinks the current pack away and grows the new one; the camera steps back for the big displays.
@@ -132,6 +185,13 @@ export class ShopScene extends Stage {
   }
 
   protected override onResize(): void {
+    // wide screens: the configuration panel covers the right of the window, so the pack is drawn left of center
+    const w = this.container.clientWidth
+    const h = this.container.clientHeight
+    const shift = w > 1000 ? Math.min(240, w * 0.18) : 0
+    this.shift = shift
+    if (shift) this.camera.setViewOffset(w, h, shift, 0, w, h)
+    else this.camera.clearViewOffset()
     if (this.pack) this.fit(0, true)
   }
 
@@ -161,7 +221,10 @@ export class ShopScene extends Stage {
   private fit(duration: number, now = false): void {
     const { w, h, d } = this.pack!.size
     const fov = 2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))
-    const z = Math.max((h * 1.7) / fov, (w * 1.5) / fov / this.camera.aspect) + d / 2
+    // only the part of the window left of the panel is free: 2 × shift narrower
+    const width = this.container.clientWidth
+    const free = this.camera.aspect * Math.max(0.4, (width - 2 * this.shift) / Math.max(1, width))
+    const z = Math.max((h * 1.9) / fov, (w * 1.5) / fov / free) + d / 2
     const radius = Math.max(w * 0.42, d * 0.6)
     const vars = { duration: now ? 0 : duration, ease: "power2.inOut", overwrite: "auto" as const }
     const tl = this.timeline()
@@ -170,6 +233,9 @@ export class ShopScene extends Stage {
       .to(this.stand.position, { ...vars, y: -h / 2 - 0.15 }, 0)
       .to(this.stand.scale, { ...vars, x: radius, z: radius }, 0)
       .to(this.spot, { ...vars, distance: z * 3 }, 0)
+      // the fan stands behind the stand, as tall as the pack
+      .to(this.fan.position, { ...vars, y: -h / 2, z: -d / 2 - 1.2 }, 0)
+      .to(this.fan.scale, { ...vars, x: h / 4.8, y: h / 4.8, z: h / 4.8 }, 0)
     this.spot.position.set(0, h * 2.2, z * 0.6)
   }
 }

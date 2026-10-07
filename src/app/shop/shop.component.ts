@@ -27,8 +27,13 @@ interface Tile {
   mixable: boolean
 }
 
-// The shop: a 3D window of the pack being configured (type, format, mixed display), the buy button,
-// and a strip of the rarest cards to win.
+// The shop, home of the site: a full-width 3D window of the pack being configured (type, format,
+// mixed display) under a glass configuration panel, the buy button, and a strip of the rarest cards.
+// The first visit of the session plays a short arrival (skipped on click, not with reduced motion).
+
+// backdrop halo of each booster type (gold stays for money and secret cards: the Collection gets violet)
+const HALOS: Record<string, string> = { BASIC: "#1e88e5", SPECIAL: "#ab47bc", COLLECTION: "#8b3dff" }
+const INTRO_KEY = "cc-intro-seen"
 @Component({
   selector: "shop",
   templateUrl: "./shop.component.html",
@@ -37,6 +42,7 @@ interface Tile {
 export class ShopComponent implements AfterViewInit, OnDestroy {
   @ViewChild("stage", { static: true }) stage!: ElementRef<HTMLElement>
   @ViewChild("strip", { static: true }) strip!: ElementRef<HTMLElement>
+  @ViewChild("title", { static: true }) title!: ElementRef<HTMLElement>
 
   boosters: BoosterType[] = this._route.snapshot.data["boosters"]
   rarities = RARITIES
@@ -57,6 +63,7 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
 
   private scene?: ShopScene
   private stripTween?: { pause(): void; resume(): void; kill(): void }
+  private intros: { progress(value: number): unknown }[] = []
   private destroyed = false
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -68,16 +75,30 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
   ) {}
 
   async ngAfterViewInit(): Promise<void> {
+    this.setHalo()
     this.startStrip()
+    const intro = this.firstVisit()
+    if (intro) this.title.nativeElement.style.opacity = "0"
     try {
       // three and gsap are only downloaded here (lazy chunk)
-      const { ShopScene } = await import("../three/shop-scene")
+      const [{ ShopScene }, { gsap }] = await Promise.all([import("../three/shop-scene"), import("gsap")])
       if (this.destroyed || !this.type) return
       const scene = new ShopScene(this.stage.nativeElement, this.reducedMotion)
       this.scene = scene
-      await this._zone.runOutsideAngular(() => scene.init(this.type, this.format, this.second))
+      await this._zone.runOutsideAngular(async () => {
+        await scene.init(this.type, this.format, this.second, intro)
+        if (intro) {
+          this.intros.push(
+            scene.intro(),
+            gsap.fromTo(this.title.nativeElement, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.9, ease: "power3.out" }),
+          )
+        }
+        scene.setFan(this.prizes, intro)
+      })
     } catch {
+      // no WebGL: a CSS pack, and the title right away
       this.flat = true
+      this.title.nativeElement.style.opacity = ""
     }
   }
 
@@ -85,6 +106,13 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
     this.destroyed = true
     this.scene?.dispose()
     this.stripTween?.kill()
+    document.documentElement.style.removeProperty("--halo-1")
+  }
+
+  // A click in the window jumps to the end of the arrival.
+  skipIntro(): void {
+    this.intros.forEach((t) => t.progress(1))
+    this.intros = []
   }
 
   get type(): BoosterType {
@@ -139,6 +167,7 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
     if (id === this.boosterId) return
     this.boosterId = id
     if (this.secondBoosterId === id) this.secondBoosterId = this.boosters.find((b) => b.id !== id)?.id ?? id
+    this.setHalo()
     this.refresh()
   }
 
@@ -210,6 +239,23 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
   pauseStrip(paused: boolean): void {
     if (paused) this.stripTween?.pause()
     else this.stripTween?.resume()
+  }
+
+  // The arrival plays once per session, never with reduced motion.
+  private firstVisit(): boolean {
+    if (this.reducedMotion) return false
+    try {
+      if (sessionStorage.getItem(INTRO_KEY)) return false
+      sessionStorage.setItem(INTRO_KEY, "1")
+    } catch {
+      // storage blocked: play it
+    }
+    return true
+  }
+
+  // the backdrop glows in the color of the selected type
+  private setHalo(): void {
+    if (this.type) document.documentElement.style.setProperty("--halo-1", HALOS[this.type.code] ?? HALOS["COLLECTION"])
   }
 
   private refresh(): void {

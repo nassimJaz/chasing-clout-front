@@ -272,7 +272,7 @@ select.field {
   gap: 8px;
   cursor: pointer;
 
-  input {
+  input:not(.switch) {
     width: 18px;
     height: 18px;
     margin: 0;
@@ -562,3 +562,17 @@ meme-card .flames {
     }
   }
 }
+
+// A pack as a thumbnail, bigger with the format: <span class="thumb thumb-{{ format }} booster-{{ code }}">
+.thumb {
+  display: block;
+  height: 34px;
+  margin-bottom: 6px;
+  border-radius: 3px;
+}
+
+.thumb-SINGLE { width: 22px; }
+.thumb-TRI_PACK { width: 22px; box-shadow: 4px -4px 0 -1px #c9c2d0, 8px -8px 0 -2px #a79db3; }
+.thumb-DISPLAY_MINI { width: 30px; height: 24px; margin-top: 10px; border-top: 5px solid #0006; }
+.thumb-DISPLAY_MEDIUM { width: 40px; height: 28px; margin-top: 6px; border-top: 6px solid #0006; }
+.thumb-DISPLAY_MEGA { width: 54px; height: 34px; border-top: 7px solid #0006; }

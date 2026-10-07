@@ -1,49 +1,63 @@
-:host {
-  display: block;
-}
-
-// the night window: the 3D pack on the left, its configuration on the right
-.window {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
-  background: radial-gradient(ellipse at 30% 60%, #3a1446, #12041a 70%);
-  color: #fff;
+// the arrival: the 3D window fills the screen, the configuration is a glass panel over its right side
+.hero {
+  position: relative;
+  min-height: calc(100vh - var(--nav-h));
 }
 
 .stage {
-  height: 72vh;
-  min-height: 380px;
+  position: absolute;
+  inset: 0;
   cursor: default;
-  background: radial-gradient(ellipse at 50% 75%, #ffb34724, transparent 60%);
+  background: radial-gradient(ellipse at 36% 72%, #8b3dff24, transparent 60%);
 }
 
 .flat {
   position: absolute;
-  inset: 20% 30%;
+  inset: 22% 50% 22% 18%;
   display: grid;
   place-items: center;
   border-radius: 10px;
   font: 700 2em Caveat, sans-serif;
 }
 
+.title {
+  position: absolute;
+  left: 40px;
+  top: 28px;
+  max-width: 440px;
+  pointer-events: none;
+
+  h1 {
+    font-size: clamp(2.6rem, 1.4rem + 4vw, 4.6rem);
+    text-shadow: 0 0 40px var(--accent-glow);
+  }
+
+  p {
+    color: var(--text-muted);
+  }
+}
+
 .config {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: 440px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 25px;
-}
-
-h1 {
-  margin: 0;
+  padding: 20px;
+  overflow-y: auto;
+  border-radius: var(--r-panel);
 }
 
 .types {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-// a booster type: its gradient, a foil sheen and a light tilt following the pointer
+// a booster type: its pack colors, a foil sheen and a light tilt following the pointer
 .type {
   --x: 0.5;
   --y: 0.5;
@@ -51,12 +65,13 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px;
+  padding: 10px;
   border: 2px solid transparent;
   border-radius: 10px;
   overflow: hidden;
   color: #fff;
   text-align: left;
+  cursor: pointer;
   transform: perspective(600px) rotateX(calc((var(--y) - 0.5) * -8deg)) rotateY(calc((var(--x) - 0.5) * 8deg));
   transition: transform 0.15s, box-shadow 0.2s;
 
@@ -65,8 +80,7 @@ h1 {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at calc(var(--x) * 100%) calc(var(--y) * 100%), #ffffff55, transparent 45%),
-      linear-gradient(115deg, transparent 30%, #ff00aa22, #00ffff22, #ffff0022, transparent 70%);
+    background: radial-gradient(circle at calc(var(--x) * 100%) calc(var(--y) * 100%), #ffffff59, transparent 45%);
     mix-blend-mode: overlay;
     opacity: 0;
     transition: opacity 0.2s;
@@ -79,22 +93,22 @@ h1 {
 
   &.selected {
     border-color: #fff;
-    box-shadow: 0 10px 24px #0008;
+    box-shadow: 0 0 24px -4px var(--accent-glow);
   }
 }
 
 .name {
-  font: 700 1.7em/1 Caveat, sans-serif;
+  font: 700 1.5em/1 Caveat, sans-serif;
 }
 
 .unit,
 .slot {
-  font-size: 0.8em;
+  font-size: 0.75em;
 }
 
 .bar {
   display: flex;
-  height: 8px;
+  height: 7px;
   margin-top: 2px;
   border-radius: 4px;
   overflow: hidden;
@@ -104,10 +118,10 @@ h1 {
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: 2px 12px;
   margin: 0;
   font-size: 0.75em;
-  color: #ffffffb3;
+  color: var(--text-muted);
 
   i {
     display: inline-block;
@@ -120,26 +134,31 @@ h1 {
 
 .formats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
 .tile {
   position: relative;
+  font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
   padding: 10px;
-  border: 1px solid #ffffff2e;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: none;
-  color: #fff;
+  background: #ffffff08;
   text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: var(--line-strong);
+  }
 
   &.selected {
-    border-color: #fff;
-    background: #ffffff17;
+    border-color: var(--accent);
+    box-shadow: 0 0 20px -6px var(--accent-glow), inset 0 0 0 1px var(--accent);
   }
 }
 
@@ -149,36 +168,26 @@ h1 {
   right: 6px;
   padding: 1px 7px;
   border-radius: 9px;
-  background: linear-gradient(90deg, #f9e27d, #c9a227);
-  color: #2b1600;
-  font-size: 0.7em;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68em;
   font-weight: 700;
 }
-
-.thumb {
-  height: 34px;
-  margin-bottom: 4px;
-  border-radius: 3px;
-}
-
-.thumb-SINGLE { width: 22px; }
-.thumb-TRI_PACK { width: 22px; box-shadow: 4px -4px 0 -1px #c9c2d0, 8px -8px 0 -2px #a79db3; }
-.thumb-DISPLAY_MINI { width: 30px; height: 24px; margin-top: 10px; border-top: 5px solid #0006; }
-.thumb-DISPLAY_MEDIUM { width: 40px; height: 28px; margin-top: 6px; border-top: 6px solid #0006; }
-.thumb-DISPLAY_MEGA { width: 54px; height: 34px; border-top: 7px solid #0006; }
 
 .label small,
 .per {
   font-size: 0.8em;
-  color: #ffffffb3;
+  color: var(--text-muted);
 }
 
 .total {
+  color: var(--gold);
   font-weight: 700;
 }
 
 .per b {
-  color: #9be59f;
+  color: var(--ok);
+  white-space: nowrap;
 }
 
 .mix {
@@ -186,42 +195,17 @@ h1 {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
 
-.swatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px 3px 4px;
-  border: 1px solid #ffffff4d;
-  border-radius: 14px;
-  background: none;
-  color: #fff;
-  font-size: 0.85em;
-
-  i {
-    width: 18px;
-    height: 18px;
+  .dot {
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-  }
-
-  &.selected {
-    border-color: #fff;
   }
 }
 
 .buy {
-  padding: 12px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 1.2em;
-  font-weight: 700;
-
-  &:disabled {
-    opacity: 0.45;
-  }
+  min-height: 52px;
+  font-size: 1.1rem;
 }
 
 .short,
@@ -230,21 +214,24 @@ h1 {
 }
 
 .short {
-  color: #ffab91;
+  color: var(--warn);
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .prizes {
-  padding: 25px 0 25px 25px;
-
-  h2 {
-    font: 700 2em Caveat, sans-serif;
-  }
+  padding: 32px 0 32px 40px;
 }
 
 .strip {
   display: flex;
   gap: 22px;
-  padding: 24px 25px 24px 14px;
+  padding: 24px 40px 24px 14px;
   overflow-x: auto;
 
   @media (pointer: coarse) {
@@ -256,14 +243,31 @@ h1 {
   }
 }
 
-@media (max-width: 900px) {
-  .window {
-    grid-template-columns: minmax(0, 1fr);
+// narrow screens: the window, the title and the panel stack
+@media (max-width: 1000px) {
+  .hero {
+    min-height: 0;
   }
 
   .stage {
-    height: 48vh;
+    position: relative;
+    height: 52vh;
     min-height: 300px;
+  }
+
+  .title {
+    position: static;
+    padding: 16px 16px 0;
+  }
+
+  .config {
+    position: static;
+    width: auto;
+    margin: 0 16px;
+  }
+
+  .prizes {
+    padding-left: 16px;
   }
 }
 
