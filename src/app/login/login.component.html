@@ -1,0 +1,30 @@
+<!-- ngNativeValidate: the browser checks the lengths before sending; the API checks them again -->
+<form class="glass" ngNativeValidate (ngSubmit)="submit()">
+  <h1>{{ register ? "Créer un compte" : "Connexion" }}</h1>
+  @if (register) {
+  <p class="hint">Tu démarres avec 5000 memes.</p>
+  }
+
+  <label for="username">Pseudo</label>
+  <input class="field" id="username" name="username" [(ngModel)]="username" autocomplete="username"
+         required minlength="3" maxlength="20" />
+
+  <label for="password">Mot de passe</label>
+  <input class="field" id="password" name="password" type="password" [(ngModel)]="password"
+         [attr.autocomplete]="register ? 'new-password' : 'current-password'" required [minlength]="register ? 8 : null"
+         [attr.aria-describedby]="register ? 'password-hint' : null" />
+  @if (register) {
+  <small id="password-hint" class="hint">8 caractères minimum</small>
+  }
+
+  @if (error) {
+  <p class="notice notice-error" role="alert">{{ error }}</p>
+  }
+  <button class="btn btn-primary" [disabled]="busy">{{ register ? "Créer mon compte" : "Se connecter" }}</button>
+
+  @if (register) {
+  <p class="switch-mode">Déjà un compte ? <a routerLink="/connexion">Se connecter</a></p>
+  } @else {
+  <p class="switch-mode">Pas encore de compte ? <a routerLink="/inscription">Créer un compte</a></p>
+  }
+</form>

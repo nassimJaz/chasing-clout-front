@@ -15,6 +15,7 @@ import {
   UserBooster,
   UserCard,
 } from "models/game.model"
+import { AuthService } from "./auth.service"
 
 @Injectable({
   providedIn: "root",
@@ -25,8 +26,9 @@ export class GameService {
   // Shown in the navbar, reloaded after each purchase.
   profile$ = new BehaviorSubject<Profile | null>(null)
 
-  constructor(private http: HttpClient) {
-    this.refreshProfile()
+  constructor(private http: HttpClient, auth: AuthService) {
+    // the profile follows the login: loaded when a player logs in, emptied when they log out
+    auth.token$.subscribe((token) => (token ? this.refreshProfile() : this.profile$.next(null)))
   }
 
   refreshProfile(): void {

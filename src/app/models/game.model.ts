@@ -85,12 +85,6 @@ export interface UserCard {
 
 export const FINISHES: Finish[] = ["NORMAL", "HOLO", "FIRE"]
 
-// No login yet: the player is picked in the navbar and sent as the X-User-Id header.
-export const PLAYERS = [
-  { id: 1, name: "demo" },
-  { id: 2, name: "rival" },
-]
-
 export const RARITIES: Rarity[] = ["COMMON", "UNCOMMON", "RARE", "VERY_RARE", "ULTRA_RARE", "SECRET"]
 
 export const RARITY_LABELS: Record<Rarity, string> = {

@@ -1,10 +1,10 @@
 import { Component, OnDestroy } from "@angular/core"
 import { Router } from "@angular/router"
 import { Subscription, timer } from "rxjs"
-import { apiError, instant, PLAYERS } from "models/game.model"
+import { apiError, instant } from "models/game.model"
 import { Link } from "models/links.model"
 import { GameService } from "services/game.service"
-import { PlayerService } from "services/player.service"
+import { AuthService } from "services/auth.service"
 
 @Component({
   selector: "navbar",
@@ -13,7 +13,6 @@ import { PlayerService } from "services/player.service"
 })
 export class NavbarComponent implements OnDestroy {
   links: Link[] = []
-  players = PLAYERS
   now = Date.now()
   freeError = ""
   claiming = false
@@ -23,14 +22,15 @@ export class NavbarComponent implements OnDestroy {
   private profile: Subscription
   private frame = 0
 
-  constructor(public game: GameService, public player: PlayerService, private _router: Router) {
+  constructor(public game: GameService, public auth: AuthService, private _router: Router) {
     this.links.push({ name: "Boutique", href: "boutique" })
     this.links.push({ name: "Inventaire", href: "inventaire" })
     this.links.push({ name: "Collection", href: "collection" })
     this.links.push({ name: "Marché", href: "marche" })
     // ticks the free booster countdown
     this.clock = timer(0, 1000).subscribe(() => (this.now = Date.now()))
-    this.profile = this.game.profile$.subscribe((p) => p && this.countTo(p.memeBalance))
+    // logged out: the next player's balance shows at once instead of counting from this one
+    this.profile = this.game.profile$.subscribe((p) => (p ? this.countTo(p.memeBalance) : (this.balance = undefined)))
   }
 
   ngOnDestroy(): void {
@@ -77,14 +77,5 @@ export class NavbarComponent implements OnDestroy {
         setTimeout(() => (this.freeError = ""), 5000)
       },
     })
-  }
-
-  // Everything shown belongs to the player: reload the profile and the current page (its resolvers).
-  switchPlayer(id: number): void {
-    this.player.set(id)
-    this.game.refreshProfile()
-    // an opening page would open the booster again: go to the inventory instead
-    const url = this._router.url.startsWith("/ouverture") ? "/inventaire" : this._router.url
-    this._router.navigateByUrl("/", { skipLocationChange: true }).then(() => this._router.navigateByUrl(url))
   }
 }

@@ -1,6 +1,7 @@
 <nav class="glass" aria-label="Navigation principale">
   <div class="bar">
     <a class="brand" routerLink="">Chasing Clout</a>
+    @if (auth.token$ | async) {
     <div class="links">
       @for (link of links; track link.href) {
       <a [routerLink]="link.href" routerLinkActive="active">{{ link.name }}</a>
@@ -15,12 +16,10 @@
     } @else {
     <button class="btn btn-quiet btn-sm" [disabled]="claiming" (click)="claimFree()">Booster gratuit</button>
     }
+    <span class="player">{{ profile.username }}</span>
     }
-    <select class="field player" aria-label="Joueur" [ngModel]="player.playerId$ | async" (ngModelChange)="switchPlayer($event)">
-      @for (p of players; track p.id) {
-      <option [ngValue]="p.id">{{ p.name }}</option>
-      }
-    </select>
+    <button class="btn btn-quiet btn-sm" (click)="auth.logout()">Se déconnecter</button>
+    }
   </div>
 </nav>
 @if (freeError) {

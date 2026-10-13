@@ -15,7 +15,8 @@ import { BoosterOpeningComponent } from "booster-opening/booster-opening.compone
 import { CardInspectComponent } from "card-inspect/card-inspect.component"
 import { BoxOpeningComponent } from "box-opening/box-opening.component"
 import { MarketComponent } from "market/market.component"
-import { UserIdInterceptor } from "services/user-id.interceptor"
+import { AuthInterceptor } from "services/auth.interceptor"
+import { LoginComponent } from "login/login.component"
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { UserIdInterceptor } from "services/user-id.interceptor"
     CardInspectComponent,
     BoxOpeningComponent,
     MarketComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -37,8 +39,8 @@ import { UserIdInterceptor } from "services/user-id.interceptor"
     FormsModule,
     HttpClientModule,
   ],
-  // every API call says who is playing (X-User-Id)
-  providers: [{ provide: HTTP_INTERCEPTORS, useClass: UserIdInterceptor, multi: true }],
+  // every API call says who is playing (the logged-in player's token)
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent],
 })
 export class AppModule {

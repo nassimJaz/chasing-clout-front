@@ -15,13 +15,20 @@ L'API Spring Boot est dans le repo voisin `chasing-clout-api` : son README décr
 L'URL de l'API se règle dans `src/environments/environment.ts` (`apiUrl`). Les images des cartes sont servies par l'API ;
 en dev, `ng serve` les relaie sur `/memes` (`proxy.conf.json`) pour que les scènes 3D puissent en faire des textures.
 
-Il n'y a pas encore d'authentification : le joueur se choisit dans la navbar (`demo` ou `rival`, gardé dans le `localStorage`).
-Un interceptor (`services/user-id.interceptor.ts`) envoie son id dans le header `X-User-Id` à chaque appel de l'API.
-Changer de joueur recharge le solde et la page courante.
+## Authentification
+Il faut un compte pour jouer : `/inscription` (pseudo de 3 à 20 caractères, mot de passe de 8 caractères minimum, 5000 memes
+au départ) ou `/connexion`. L'API renvoie un jeton JWT (valable 24 h), gardé dans le `localStorage` (clé `cc-token`).
+- `services/auth.interceptor.ts` l'envoie dans `Authorization: Bearer …` à chaque appel de l'API (sauf `/auth/...`) ; si l'API
+  répond 401 (jeton expiré ou invalide), le joueur est déconnecté et renvoyé sur `/connexion`.
+- Les pages du jeu sont protégées par le guard `loggedIn` (`services/auth.service.ts`) ; `/connexion` et `/inscription`
+  renvoient un joueur déjà connecté sur la boutique (`loggedOut`).
+- « Se déconnecter » (navbar) oublie seulement le jeton : il reste valable côté API jusqu'à son expiration.
+- Le profil (`GameService.profile$`) suit le jeton : chargé à la connexion, vidé à la déconnexion.
 
 ## Pages
 | URL | Rôle |
 |---|---|
+| `/connexion`, `/inscription` | Connexion ou création de compte (même composant `login/`), puis direction la boutique |
 | `/boutique` | Vitrine 3D du pack configuré (type, format, display mixte 50/50), cotes en barres par rareté, prix par booster et économie par format ; après l'achat, « Ouvrir maintenant ». En bas, les cartes les plus rares à gagner |
 | `/inventaire` | Boosters non ouverts : un groupe par tri-pack ou display acheté, les autres groupés par type |
 | `/ouverture/:id` | Ouvre le booster (appel POST) en 3D : le paquet se déchire, les cartes se retournent une à une (une carte Secrète est annoncée par un fond doré avant d'être retournée), puis un récap |
@@ -29,13 +36,14 @@ Changer de joueur recharge le solde et la page courante.
 | `/collection` | Les 300 cartes, grisées si non possédées ; un clic ouvre la carte en 3D. Une carte possédée peut être mise en vente sur le marché ou vendue au système, qui la rachète à 50 % de son prix (il n'en vend pas) |
 | `/marche` | Les annonces des joueurs, avec l'écart au prix système ; « Acheter », ou « Retirer » sur ses propres annonces |
 
-La navbar affiche le solde du joueur (rechargé après chaque achat) et le bouton « Booster gratuit » (un toutes les 30 minutes,
+La navbar affiche le solde du joueur (rechargé après chaque achat), son pseudo, « Se déconnecter » et le bouton « Booster gratuit » (un toutes les 30 minutes,
 compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est trop tôt).
 
 ## Organisation du code (`src/app`)
 - `services/game.service.ts` : tous les appels à l'API, et `profile$` (le solde de la navbar)
 - `models/game.model.ts` : les types des réponses de l'API (miroir des DTO), les libellés français des raretés, finitions et formats
-- `services/player.service.ts` : le joueur courant ; `services/user-id.interceptor.ts` : le header `X-User-Id`
+- `services/auth.service.ts` : connexion, inscription, déconnexion, le jeton (`token$`) et les guards `loggedIn` / `loggedOut` ;
+  `services/auth.interceptor.ts` : le header `Authorization`
 - `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo ; bordure de flammes via le filtre SVG
   `#cc-fire` défini une fois dans `app.component.html` et braises pour la finition Enflammée), utilisée par les grilles
 - `three/` : les scènes 3D (Three.js + GSAP), toujours chargées en `import()` pour rester hors du bundle initial :
@@ -43,7 +51,7 @@ compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est tr
   `box-scene.ts`, `card-viewer.ts`, `shop-scene.ts`
 - `booster-opening/` : le déroulé 3D d'un booster, utilisé par `/ouverture/:id` et par la box
 - `card-inspect/` : la modale 3D d'une carte (collection, récaps, marché)
-- `shop/`, `inventory/`, `opening/`, `box-opening/`, `collection/`, `market/` : les pages ; les données sont chargées par des
+- `login/`, `shop/`, `inventory/`, `opening/`, `box-opening/`, `collection/`, `market/` : les pages ; les données sont chargées par des
   resolvers déclarés dans `app-routing.module.ts`
 
 ## À savoir

@@ -83,8 +83,9 @@ nav {
 }
 
 .player {
-  min-height: 32px;
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 // the API's answer when the free booster is refused
