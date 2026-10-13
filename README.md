@@ -1,7 +1,8 @@
 # Chasing Clout — Front
 
 Front Angular 17 du jeu de cartes à collectionner Chasing Clout (300 cartes de mèmes).
-L'API Spring Boot est dans le repo voisin `chasing-clout-api` : son README décrit le modèle de données, les règles du jeu et les routes.
+L'API Spring Boot est dans le repo voisin `chasing-clout-api` : son README présente le projet et explique comment le
+lancer en une commande avec Docker (comptes de démonstration compris).
 
 ## Installations nécessaires
 - Node JS : https://nodejs.org/en/download (Angular 17 supporte officiellement Node 18 et 20 ; testé aussi avec Node 24)
@@ -14,6 +15,10 @@ L'API Spring Boot est dans le repo voisin `chasing-clout-api` : son README décr
 
 L'URL de l'API se règle dans `src/environments/environment.ts` (`apiUrl`). Les images des cartes sont servies par l'API ;
 en dev, `ng serve` les relaie sur `/memes` (`proxy.conf.json`) pour que les scènes 3D puissent en faire des textures.
+
+**Tester toute l'appli sans Node ni Java** (base de démo, API et front) : voir « Tester l'application » dans le README de
+`chasing-clout-api`. Le `Dockerfile` de ce repo y construit le front en prod et le sert avec nginx (`nginx.conf`), qui relaie
+`/api` et `/memes` vers l'API. D'où `apiUrl: "/api"` dans `environment.prod.ts` : le build de prod suppose ce relais.
 
 ## Authentification
 Il faut un compte pour jouer : `/inscription` (pseudo de 3 à 20 caractères, mot de passe de 8 caractères minimum, 5000 memes
