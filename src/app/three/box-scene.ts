@@ -288,7 +288,8 @@ export class BoxScene extends Stage {
   // Looking down into the open box (about 32°), far enough for the open lid to fit.
   private peek(): { position: { x: number; y: number; z: number }; look: { x: number; y: number; z: number } } {
     const { h } = this.pack.size
-    const distance = this.closedZ * 1.45
+    // the big display's lid, lifted and turned, needs more room
+    const distance = this.closedZ * (this.pack.telescopic ? 1.7 : 1.45)
     const angle = THREE.MathUtils.degToRad(32)
     const look = { x: 0, y: h * 0.2, z: 0 }
     return { position: { x: 0, y: look.y + Math.sin(angle) * distance, z: Math.cos(angle) * distance }, look }

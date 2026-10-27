@@ -57,25 +57,32 @@ export function packColors(codes: string[]): string[] {
 
 // clear film: cellophane or blister plastic. Almost invisible: a black, glossy surface added on top of
 // the scene, so only its reflections show (glints moving with the pack, edges catching the light).
-// It adds color but no alpha: the transparent canvas stays transparent around the pack.
+// It adds color but no alpha: the transparent canvas stays transparent around the pack. Faces turned
+// to the camera only keep a fifth of their glint, so the print shows through; grazing faces and edges keep more.
 function film(geometry: THREE.BufferGeometry, reflection: number): THREE.Mesh {
-  const mesh = new THREE.Mesh(
-    geometry,
-    new THREE.MeshStandardMaterial({
-      color: "#000000",
-      roughness: 0.08,
-      metalness: 0,
-      envMapIntensity: reflection,
-      blending: THREE.CustomBlending,
-      blendSrc: THREE.SrcAlphaFactor,
-      blendDst: THREE.OneFactor,
-      blendSrcAlpha: THREE.ZeroFactor,
-      blendDstAlpha: THREE.OneFactor,
-      transparent: true,
-      opacity: 1,
-      depthWrite: false,
-    }),
-  )
+  const material = new THREE.MeshStandardMaterial({
+    color: "#000000",
+    roughness: 0.08,
+    metalness: 0,
+    envMapIntensity: reflection,
+    blending: THREE.CustomBlending,
+    blendSrc: THREE.SrcAlphaFactor,
+    blendDst: THREE.OneFactor,
+    blendSrcAlpha: THREE.ZeroFactor,
+    blendDstAlpha: THREE.OneFactor,
+    transparent: true,
+    opacity: 1,
+    depthWrite: false,
+  })
+  material.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <opaque_fragment>",
+      `outgoingLight *= 0.2 + 0.45 * pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 5.0);
+      #include <opaque_fragment>`,
+    )
+  }
+  material.customProgramCacheKey = () => "film"
+  const mesh = new THREE.Mesh(geometry, material)
   mesh.renderOrder = 1 // over the pack it wraps
   return mesh
 }
