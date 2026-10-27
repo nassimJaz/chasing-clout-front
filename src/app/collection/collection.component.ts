@@ -43,8 +43,10 @@ export class CollectionComponent {
     })
   }
 
+  // Rarest first; within a rarity the cards keep their order (the sort is stable). The filters keep this order.
   private build(cards: Card[], myCards: UserCard[]): Entry[] {
-    return cards.map((card) => ({
+    const sorted = [...cards].sort((a, b) => RARITIES.indexOf(b.rarity) - RARITIES.indexOf(a.rarity))
+    return sorted.map((card) => ({
       card,
       owned: myCards
         .filter((c) => c.card.id === card.id)
