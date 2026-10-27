@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from "@angular/core"
+import { Component, HostListener, OnDestroy } from "@angular/core"
 import { Router } from "@angular/router"
 import { Subscription, timer } from "rxjs"
 import { apiError, instant } from "models/game.model"
@@ -17,6 +17,7 @@ export class NavbarComponent implements OnDestroy {
   freeError = ""
   claiming = false
   balance?: number // shown, counts toward the real balance when it changes
+  scrolled = false // the bar blurs what passes under it once the page scrolls
 
   private clock: Subscription
   private profile: Subscription
@@ -31,6 +32,11 @@ export class NavbarComponent implements OnDestroy {
     this.clock = timer(0, 1000).subscribe(() => (this.now = Date.now()))
     // logged out: the next player's balance shows at once instead of counting from this one
     this.profile = this.game.profile$.subscribe((p) => (p ? this.countTo(p.memeBalance) : (this.balance = undefined)))
+  }
+
+  @HostListener("window:scroll")
+  onScroll(): void {
+    this.scrolled = window.scrollY > 4
   }
 
   ngOnDestroy(): void {

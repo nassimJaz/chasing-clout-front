@@ -116,6 +116,16 @@ export const RARITY_TEXT: Record<Rarity, string> = {
   SECRET: "#c9a227",
 }
 
+// The letter of each rarity on its pill (.rarity-pill).
+export const RARITY_LETTERS: Record<Rarity, string> = {
+  COMMON: "C",
+  UNCOMMON: "PC",
+  RARE: "R",
+  VERY_RARE: "TR",
+  ULTRA_RARE: "UR",
+  SECRET: "S",
+}
+
 export const FINISH_LABELS: Record<Finish, string> = {
   NORMAL: "Normale",
   HOLO: "Holo",

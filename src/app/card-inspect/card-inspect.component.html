@@ -25,7 +25,7 @@
             <button class="btn btn-sm btn-outline-light" [disabled]="busy || !sellPrice[f] || sellPrice[f]! <= 0" (click)="sell(f)">Mettre en vente</button>
           </div>
           @if (buyback[f] !== undefined) {
-          <button class="btn btn-sm" [class.btn-light]="confirming !== f" [class.btn-warning]="confirming === f" [disabled]="busy" (click)="sellToSystem(f)">
+          <button class="btn btn-sm" [class.btn-ghost]="confirming !== f" [class.btn-warning]="confirming === f" [disabled]="busy" (click)="sellToSystem(f)">
             @if (confirming === f) { Confirmer ? ({{ buyback[f] }} memes) } @else { Vendre au système ({{ buyback[f] }} memes) }
           </button>
           }

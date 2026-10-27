@@ -17,7 +17,7 @@
     }
   </div>
   @if (phase === "closed" || phase === "grid") {
-  <button class="btn btn-light all" (click)="$event.stopPropagation(); openAll()">Tout ouvrir ({{ boosters.length }})</button>
+  <button class="btn btn-ghost all" (click)="$event.stopPropagation(); openAll()">Tout ouvrir ({{ boosters.length }})</button>
   }
   @if (flat && phase === "grid") {
   <div class="flat">

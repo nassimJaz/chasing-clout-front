@@ -1,60 +1,76 @@
-// Chasing Clout: night shop theme. Deep violet-black, one electric violet accent, gold kept for
-// money and secret cards. Glass only over the scenes and for the navigation, never on cards.
+// Chasing Clout: matte night theme (structure and density inspired by kyara.games). Matte, opaque
+// panels on a violet-black background, one electric violet accent, gold kept for money and secret
+// cards. Blur only behind the dialog and on the navbar once the page scrolls.
 
 // ---------------------------------------------------------------------------- tokens
-// the backdrop halos are colors, so they can fade from one to another (shop type, collection rarity)
+// kept as a color property so the shop can still fade it (only the shop scene uses it now)
 @property --halo-1 {
   syntax: "<color>";
   inherits: true;
   initial-value: #8b3dff;
 }
 
-@property --halo-2 {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #5b21b6;
-}
-
 :root {
   --nav-h: 64px;
-  --font: "Bricolage Grotesque", system-ui, sans-serif;
+  --font: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-display: "Unbounded", "Zen Kaku Gothic New", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  // surfaces, from the page up (contrast of --text: 17.6, 15.6 and 13.6 to 1)
-  --bg: #0a0612;
-  --surface-1: #130c1f;
-  --surface-2: #1c1330;
-  --surface-3: #2a1d45;
-  --line: #ffffff1a;
-  --line-strong: #ffffff33;
+  // surfaces, from the page up, and their hairlines
+  --bg: #0e0d12;
+  --bg2: #121117;
+  --panel: #15141a;
+  --panel2: #17161d;
+  --raise: #1e1c26;
+  --line: #25232c;
+  --line2: #2e2b36;
+  --line3: #3a3742;
 
-  --text: #f3eefb;
-  --text-muted: #a99bc2; // 7.8:1 on --bg, 6.4:1 on glass at its worst
-  --accent: #8b3dff; // electric violet; white on it 5.0:1
-  --accent-text: #c3a2ff; // violet text on dark, 9.5:1
-  --accent-soft: #8b3dff2e;
-  --accent-glow: #8b3dff8c;
-  --gold: #f2c14e; // money and secret cards only
+  // text (contrast on --bg: 16.1, 9.3, 5.4 to 1; --dim is for decoration only)
+  --fg: #edeae4;
+  --fg2: #b7b2bd;
+  --mut: #8a8590;
+  --dim: #5a5662;
+
+  --acc: #8b3dff; // electric violet; white on it 5.0:1
+  --acc2: #a370ff; // lighter, for borders and glows (not under white text)
+  --acc-soft: #8b3dff1f;
+  --acc-text: #b794ff; // violet text on dark, 8.0:1
+  --gold: #f5c518; // money and secret cards only
   --ok: #5fd99c;
   --warn: #ffa45c; // errors: orange, never red
-  --focus: #c3a2ff;
 
-  --halo-1: #8b3dff;
-  --halo-2: #5b21b6;
-  transition: --halo-1 0.6s ease, --halo-2 0.6s ease;
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+  --r-4: 18px;
+  --shadow-1: 0 6px 14px #00000073;
+  --shadow-2: 0 18px 40px #0000008c;
+  --max: 1280px;
+  --gutter: 32px;
 
-  // glass: light over the scenes and the navigation, strong for the dialog and the toasts
-  --glass-bg: rgb(19 12 31 / 0.62);
-  --glass-bg-strong: rgb(19 12 31 / 0.8);
-  --glass-solid: #1a1029; // without backdrop-filter or with reduced transparency
-  --glass-border: 1px solid #ffffff1f;
-  --glass-shine: inset 0 1px 0 #ffffff24;
-  --glass-blur: blur(18px) saturate(1.4);
-  --glass-shadow: 0 18px 40px -12px rgb(3 0 8 / 0.75);
-
-  --r-control: 8px;
-  --r-panel: 14px;
+  // older names still used by some components
+  --surface-1: var(--panel);
+  --surface-2: var(--panel2);
+  --surface-3: var(--raise);
+  --line-strong: var(--line3);
+  --text: var(--fg);
+  --text-muted: var(--mut);
+  --accent: var(--acc);
+  --accent-text: var(--acc-text);
+  --accent-soft: var(--acc-soft);
+  --accent-glow: #8b3dff59;
+  --focus: var(--acc-text);
+  --r-control: var(--r-2);
+  --r-panel: var(--r-3);
 
   color-scheme: dark;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --gutter: 16px;
+  }
 }
 
 // ---------------------------------------------------------------------------- base
@@ -71,41 +87,38 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--text);
-  font: 400 1rem/1.5 var(--font);
+  color: var(--fg);
+  font: 400 0.875rem/1.6 var(--font);
   -webkit-font-smoothing: antialiased;
 }
 
-// the living backdrop: violet halos and a light grain, fixed, never animated (the halos only fade color)
+// a light grain over the matte background, nothing else
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
-    radial-gradient(42% 38% at 12% 8%, color-mix(in srgb, var(--halo-1) 42%, transparent), transparent 70%),
-    radial-gradient(40% 40% at 92% 30%, color-mix(in srgb, var(--halo-2) 38%, transparent), transparent 70%),
-    radial-gradient(70% 45% at 50% 115%, #8b3dff26, transparent 70%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
 }
 
 h1,
 h2,
 h3 {
   margin: 0 0 0.5em;
+  font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.02em;
-  font-variation-settings: "opsz" 96;
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  font-size: clamp(28px, 2vw + 18px, 44px);
+  font-weight: 900;
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 20px;
 }
 
 p {
@@ -113,7 +126,7 @@ p {
 }
 
 a {
-  color: var(--accent-text);
+  color: var(--acc-text);
 }
 
 button,
@@ -124,7 +137,7 @@ select {
 }
 
 small {
-  font-size: 0.875em;
+  font-size: 12px;
 }
 
 img {
@@ -132,138 +145,189 @@ img {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--acc-text);
   outline-offset: 2px;
 }
 
+// prices, counters, codes
+.num,
+.price,
 .tabular {
+  font-family: var(--font-mono);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
+.price {
+  color: var(--gold);
+}
+
+// page width: 1280 px with a 32 px gutter (16 px on phones)
+.container {
+  width: 100%;
+  max-width: calc(var(--max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+// a small uppercase-free label above a section: mono, muted
+.meta {
+  color: var(--mut);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
 // ---------------------------------------------------------------------------- building blocks
-.glass {
-  background: var(--glass-bg);
-  border: var(--glass-border);
-  box-shadow: var(--glass-shine), var(--glass-shadow);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-}
-
-.glass-strong {
-  @extend .glass;
-  background: var(--glass-bg-strong);
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass,
-  .glass-strong {
-    background: var(--glass-solid);
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .glass,
-  .glass-strong {
-    background: var(--glass-solid);
-    backdrop-filter: none;
-  }
-}
-
+// a matte, opaque surface with a hairline
 .panel {
-  background: var(--surface-1);
-  border: 1px solid var(--line);
-  border-radius: var(--r-panel);
+  background: var(--panel);
+  border: 1px solid var(--line2);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-1);
+}
+
+.tile {
+  background: var(--panel2);
+  border: 1px solid var(--line2);
+  border-radius: var(--r-3);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: var(--line3);
+  }
+
+  &.active,
+  &.selected {
+    border-color: var(--acc);
+    box-shadow: inset 0 0 0 1px var(--acc);
+  }
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5em;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-control);
-  background: var(--surface-2);
-  color: var(--text);
-  font-weight: 600;
-  font-size: 0.95rem;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 24px;
+  border: 1px solid var(--line3);
+  border-radius: var(--r-2);
+  background: var(--raise);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 14px;
   line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.15s, box-shadow 0.2s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.2s, transform 0.1s;
 
-  &:hover {
-    background: var(--surface-3);
+  &:hover:not(:disabled) {
+    border-color: var(--fg2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   &:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
 
-.btn-primary {
-  border-color: transparent;
-  background: var(--accent);
+// solid violet: the main action of a screen
+.btn-acc {
+  border-color: var(--acc);
+  background: var(--acc);
   color: #fff;
-  box-shadow: inset 0 1px 0 #ffffff33, 0 8px 24px -10px var(--accent-glow);
 
   &:hover:not(:disabled) {
-    background: var(--accent);
-    box-shadow: inset 0 1px 0 #ffffff33, 0 10px 32px -6px var(--accent-glow);
+    border-color: var(--acc2);
+    box-shadow: 0 0 0 3px var(--acc-soft), 0 10px 24px -10px #8b3dffa6;
   }
 }
 
-.btn-quiet {
+.btn-ghost {
   background: transparent;
 
   &:hover:not(:disabled) {
-    background: #ffffff12;
+    background: var(--panel2);
   }
 }
 
+// light on the dark background
+.btn-light {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--bg);
+
+  &:hover:not(:disabled) {
+    border-color: #fff;
+    background: #fff;
+  }
+}
+
+.btn-big {
+  min-height: 60px;
+  padding: 0 32px;
+  font: 700 16px var(--font-display);
+}
+
+.btn-sm {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+// an action that can't be undone, then its confirmation
 .btn-danger {
-  background: transparent;
   border-color: #ffa45c66;
+  background: transparent;
   color: var(--warn);
 
   &:hover:not(:disabled) {
-    background: #ffa45c1a;
+    background: #ffa45c14;
   }
 }
 
-// second click of an action that can't be undone
 .btn-confirm {
-  border-color: transparent;
+  border-color: var(--warn);
   background: var(--warn);
   color: #1a0a00;
 }
 
-.btn-sm {
-  min-height: 32px;
-  padding: 0 12px;
-  font-size: 0.85rem;
+// names of the previous theme
+.btn-primary {
+  @extend .btn-acc;
+}
+
+.btn-quiet {
+  @extend .btn-ghost;
 }
 
 .field {
-  min-height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-control);
-  background: var(--surface-2);
-  color: var(--text);
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line2);
+  border-radius: var(--r-2);
+  background: var(--bg2);
+  color: var(--fg);
+
+  &:hover {
+    border-color: var(--line3);
+  }
 
   &:focus {
-    outline: 2px solid var(--focus);
-    outline-offset: 1px;
+    border-color: var(--acc);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--acc-soft);
   }
 }
 
 select.field {
   appearance: none;
-  padding-right: 32px;
-  background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23c3a2ff' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;
+  padding-right: 36px;
+  background: var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b794ff' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;
 }
 
 .check {
@@ -276,7 +340,7 @@ select.field {
     width: 18px;
     height: 18px;
     margin: 0;
-    accent-color: var(--accent);
+    accent-color: var(--acc);
   }
 }
 
@@ -284,12 +348,12 @@ select.field {
 .switch {
   appearance: none;
   position: relative;
-  width: 38px;
+  width: 40px;
   height: 22px;
   margin: 0;
   border-radius: 11px;
-  background: var(--surface-3);
-  box-shadow: inset 0 0 0 1px var(--line-strong);
+  background: var(--raise);
+  box-shadow: inset 0 0 0 1px var(--line3);
   cursor: pointer;
   transition: background 0.2s;
 
@@ -301,15 +365,15 @@ select.field {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--text);
+    background: var(--fg);
     transition: transform 0.2s;
   }
 
   &:checked {
-    background: var(--accent);
+    background: var(--acc);
 
     &::after {
-      transform: translateX(16px);
+      transform: translateX(18px);
     }
   }
 }
@@ -318,30 +382,38 @@ select.field {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 32px;
+  min-height: 36px;
   padding: 0 14px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line2);
   border-radius: 999px;
-  background: transparent;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.875rem;
+  background: var(--panel2);
+  color: var(--fg2);
+  font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--line3);
+    color: var(--fg);
+  }
 
   &.on,
   &[aria-pressed="true"] {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    color: var(--text);
+    border-color: var(--acc);
+    background: var(--acc-soft);
+    color: var(--fg);
   }
 }
 
 .notice {
-  @extend .glass-strong;
-  margin: 0 0 1rem;
+  margin: 0 0 16px;
   padding: 12px 16px;
-  border-left: 3px solid var(--accent);
-  border-radius: 10px;
+  border: 1px solid var(--line2);
+  border-left: 3px solid var(--acc);
+  border-radius: var(--r-2);
+  background: var(--panel2);
+  box-shadow: var(--shadow-1);
 }
 
 .notice-error {
@@ -352,16 +424,36 @@ select.field {
   border-left-color: var(--ok);
 }
 
+// a rarity as a colored letter pill: <span class="rarity-pill rp-{{ rarity }}">{{ letters[rarity] }}</span>
+.rarity-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  color: #0e0d12;
+  font: 700 10px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.rp-COMMON { background: #9e9e9e; }
+.rp-UNCOMMON { background: #43a047; }
+.rp-RARE { background: #1e88e5; }
+.rp-VERY_RARE { background: #8e24aa; color: #fff; }
+.rp-ULTRA_RARE { background: #fb8c00; }
+.rp-SECRET { background: linear-gradient(135deg, #f9e27d, #c9a227); }
+
 // ---------------------------------------------------------------------------- Bootstrap names still in
-// the templates, mapped to the classes above. Removed page by page as the templates are migrated.
+// some templates, mapped to the classes above.
 .btn-dark {
-  @extend .btn-primary;
+  @extend .btn-acc;
 }
 
 .btn-outline-dark,
-.btn-light,
 .btn-outline-light {
-  @extend .btn-quiet;
+  @extend .btn-ghost;
 }
 
 .btn-warning {
@@ -369,8 +461,7 @@ select.field {
 }
 
 .btn-lg {
-  min-height: 48px;
-  font-size: 1.05rem;
+  @extend .btn-big;
 }
 
 .alert {
@@ -392,14 +483,14 @@ select.field {
 
 .form-select {
   appearance: none;
-  padding-right: 32px;
-  background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23c3a2ff' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;
+  padding-right: 36px;
+  background: var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b794ff' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;
 }
 
 .form-control-sm {
-  min-height: 32px;
+  min-height: 36px;
   padding: 0 10px;
-  font-size: 0.85rem;
+  font-size: 13px;
 }
 
 .form-check {
@@ -410,7 +501,7 @@ select.field {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--accent);
+  accent-color: var(--acc);
 }
 
 .form-switch .form-check-input {
@@ -426,7 +517,7 @@ select.field {
 }
 
 .gap-2 {
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 // ---------------------------------------------------------------------------- game objects
