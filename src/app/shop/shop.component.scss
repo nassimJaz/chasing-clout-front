@@ -20,9 +20,10 @@
   font: 700 2em Caveat, sans-serif;
 }
 
+// the title and the panel line up with the 1280 px container of the other pages
 .title {
   position: absolute;
-  left: 40px;
+  left: max(var(--gutter), calc((100% - var(--max)) / 2));
   top: 28px;
   max-width: 440px;
   pointer-events: none;
@@ -40,7 +41,7 @@
 .config {
   position: absolute;
   top: 24px;
-  right: 24px;
+  right: max(var(--gutter), calc((100% - var(--max)) / 2));
   bottom: 24px;
   width: 440px;
   display: flex;
@@ -132,10 +133,11 @@
   }
 }
 
+// 3 + 2 tiles, nothing wraps; the row gap leaves room for the "Meilleure valeur" badge
 .formats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 8px;
 }
 
 .tile {
@@ -174,7 +176,23 @@
   font-weight: 700;
 }
 
-.label small,
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  height: 40px;
+}
+
+.label {
+  overflow: hidden;
+  max-width: 100%;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count,
 .per {
   font-size: 0.8em;
   color: var(--text-muted);
@@ -273,6 +291,10 @@
     position: static;
     width: auto;
     margin: 0 16px;
+  }
+
+  .formats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
 }

@@ -509,7 +509,7 @@ select.field {
 }
 
 // a card name in the meta line stays in the text font (mono is for figures)
-.card-meta .name {
+.card-meta .card-name {
   overflow: hidden;
   color: var(--fg2);
   font: 500 12px var(--font);
@@ -646,6 +646,14 @@ meme-card .flames {
       radial-gradient(circle at 72% 14%, #fff3c4 0 1px, #ff6a00 2.5px, transparent 5px);
     animation: embers 1.8s linear infinite;
   }
+}
+
+// in the dense grids and the shop strip: half as thick, so it stays clear of the next card
+.card-grid meme-card .flames,
+.strip meme-card .flames {
+  inset: -8px -6px -4px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px 2px #ff4a0059;
 }
 
 @keyframes embers {

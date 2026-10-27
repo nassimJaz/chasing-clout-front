@@ -50,8 +50,11 @@
         @if (t.format === best) {
         <span class="best">Meilleure valeur</span>
         }
-        <span class="thumb thumb-{{ t.format }} booster-{{ type.code }}"></span>
-        <span class="label">{{ t.label }} <small>×{{ t.count }}</small></span>
+        <span class="head">
+          <span class="thumb thumb-{{ t.format }} booster-{{ type.code }}"></span>
+          <span class="count num">×{{ t.count }}</span>
+        </span>
+        <span class="label">{{ t.label }}</span>
         <span class="total tabular">{{ t.total }} memes</span>
         <span class="per tabular">
           {{ t.perBooster | number: "1.0-0" }} / booster
@@ -115,7 +118,7 @@
       </button>
       <div class="card-meta">
         <span class="rarity-pill rp-{{ card.rarity }}" [title]="rarityLabels[card.rarity]">{{ rarityLetters[card.rarity] }}</span>
-        <span class="name">{{ card.name }}</span>
+        <span class="card-name">{{ card.name }}</span>
       </div>
     </div>
     }
