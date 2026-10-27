@@ -56,7 +56,10 @@ export function studio(renderer: THREE.WebGLRenderer, scene: THREE.Scene, key: T
   }
 }
 
-// Every mesh of a product casts its shadow on the floor.
+// Every mesh of a product casts its shadow on the floor, except the clear films.
 export function castShadows(object: THREE.Object3D): void {
-  object.traverse((o) => ((o as THREE.Mesh).isMesh ? ((o as THREE.Mesh).castShadow = true) : undefined))
+  object.traverse((o) => {
+    const mesh = o as THREE.Mesh
+    if (mesh.isMesh) mesh.castShadow = !mesh.userData["film"]
+  })
 }

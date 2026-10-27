@@ -7,8 +7,9 @@ import { BoosterArt, boosterGeometry } from "./booster-art"
 import { Stage } from "./stage"
 import { castShadows } from "./studio"
 
-// A whole purchase in 3D: the closed pack (booster, tri-pack or display box) floats; once open,
-// its boosters line up in arched rows and the one picked with the mouse is sent to the component.
+// A whole purchase in 3D: the closed pack (booster, tri-pack or display box) floats; opening it first
+// tears its cellophane (or peels the blister) and swings the lid open on the boosters standing inside,
+// then they line up in arched rows and the one picked with the mouse is sent to the component.
 
 interface Item {
   id: number
@@ -41,6 +42,9 @@ export class BoxScene extends Stage {
   private opened = false
   private gridZ = 10
   private closedZ = 10
+  private unwrapped = false
+  private unwrapping?: gsap.core.Timeline
+  private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches
 
   constructor(container: HTMLElement, private boosters: UserBooster[], private format: PurchaseFormat, private title: string) {
     super(container)
@@ -63,19 +67,30 @@ export class BoxScene extends Stage {
 
     this.pack = buildPack(this.kit, this.format, this.boosters, this.title)
     this.scene.add(this.pack.group)
-    // the closed pack in studio light, standing on its shadow
+    // the closed pack in studio light, floating over its shadow (low enough for the tilted pack to clear it)
     castShadows(this.pack.group)
-    this.studio().place(-this.pack.size.h / 2 - 0.02, this.pack.size)
+    this.studio().place(-this.pack.size.h * 0.85 - 0.1, this.pack.size)
     if (this.isBox) {
-      // hidden inside the box, they come out of its top when it opens
+      // standing in the box in tight rows, facing the front, their tops just under the rim
       const art = new BoosterArt(this.kit)
-      const k = (this.pack.size.h * 0.7) / BOOSTER_H
+      const { w, d, floor } = this.pack.inner!
+      const k = (this.pack.size.h / 2 - floor - 0.1) / BOOSTER_H
+      const cols = Math.max(1, Math.floor(w / (BOOSTER_W * k * 1.04)))
+      const rows = Math.ceil(this.boosters.length / cols)
       this.boosters.forEach((b, i) => {
         const material = art.material(b.code, b.name, boosterColors(b.code))
         const mesh = new THREE.Mesh(this.geometry, material)
         const holder = new THREE.Group()
         holder.add(mesh)
-        holder.position.set(gsap.utils.random(-0.3, 0.3) * this.pack.size.w, 0, gsap.utils.random(-0.3, 0.3) * this.pack.size.d)
+        const col = i % cols
+        const row = Math.floor(i / cols)
+        holder.position.set(
+          (col - (cols - 1) / 2) * (w / cols),
+          floor + (BOOSTER_H * k) / 2,
+          // a margin front and back: the packs lean and bulge
+          d / 2 - 0.2 * k - ((row + 0.5) * (d - 0.4 * k)) / rows,
+        )
+        holder.rotation.x = -0.06 + gsap.utils.random(-0.03, 0.03) // leaning a little
         holder.scale.setScalar(k)
         holder.visible = false
         this.pack.group.add(holder)
@@ -95,6 +110,8 @@ export class BoxScene extends Stage {
       })
     }
     this.pack.group.rotation.set(this.base.x, this.base.y, 0)
+    // reduced motion: the pack is shown already unwrapped and open
+    if (this.reducedMotion) this.unwrap()?.progress(1)
 
     this.listen("click", () => {
       if (this.interactive && !this.busy && this.hovered) this.onPick?.(this.hovered.id)
@@ -102,10 +119,19 @@ export class BoxScene extends Stage {
     this.start()
   }
 
-  // Display: the lid flies off and the boosters come out of the box. Tri-pack: the band slides off.
+  // Display: the cellophane is torn off and the lid swings open on its hinge, then the lid flies off
+  // and the boosters come out of the box. Tri-pack: the blister bubble peels off, then the backing
+  // slides away. A click while unwrapping jumps to the end of it.
   async openBox(): Promise<void> {
+    if (this.unwrapping?.isActive()) {
+      this.unwrapping.progress(1)
+      return
+    }
     if (this.opened || this.busy || this.disposed) return
     this.busy = true
+    const unwrapping = this.unwrap()
+    if (unwrapping) await unwrapping
+    if (this.disposed) return
     this.opening = true
     const { group, lid, body, band, size } = this.pack
     const tl = this.timeline({ defaults: { ease: "power2.out" } })
@@ -145,6 +171,43 @@ export class BoxScene extends Stage {
     })
     await tl
     this.busy = false
+  }
+
+  // The physical opening, before the boosters come out (about 1.6 s): the tear strip runs across, the
+  // cellophane loosens and fades, the lid swings back on its hinge (the big display lifts it first).
+  // Tri-pack: the blister bubble peels off. Nothing for a single booster.
+  private unwrap(): gsap.core.Timeline | undefined {
+    if (this.unwrapped) return undefined
+    this.unwrapped = true
+    const { wrap, tab, hinge, lid, size, telescopic } = this.pack
+    if (!wrap && !hinge) return undefined // a single booster
+    const tl = this.timeline({ defaults: { ease: "power2.out" } })
+    this.unwrapping = tl
+    // the pack stops floating and leans toward the camera, to show what is inside once open
+    this.opening = true
+    if (hinge) tl.to(this.pack.group.rotation, { x: 0.55, y: -0.3, z: 0, duration: 0.8, ease: "power2.inOut" }, 0.2)
+    if (tab) {
+      tl.to(tab.position, { x: size.w * 1.2, duration: 0.45, ease: "power1.in" }, 0).to(tab.material as THREE.Material, { opacity: 0, duration: 0.2 }, 0.3)
+    }
+    if (wrap) {
+      const peel = !hinge // the blister bubble comes off forward and down
+      tl.to(wrap.scale, { x: 1.04, y: 1.04, z: 1.06, duration: 0.4 }, peel ? 0 : 0.25)
+        .to(wrap.material as THREE.Material, { opacity: 0, duration: 0.45 }, peel ? 0.15 : 0.35)
+      if (peel) tl.to(wrap.position, { y: -1.2, z: 1.5, duration: 0.6, ease: "power2.in" }, 0).to(wrap.rotation, { x: 0.9, duration: 0.6 }, 0)
+      tl.call(() => (wrap.visible = false))
+    }
+    if (hinge && lid) {
+      let at = 0.6
+      if (telescopic) {
+        // the big display: the lid lifts off the walls before turning
+        tl.to(lid.position, { y: `+=${size.h * 0.16}`, duration: 0.35, ease: "power2.out" }, at)
+        at += 0.3
+      }
+      tl.call(() => this.items.forEach((it) => (it.holder.visible = true)), [], at)
+        .to(hinge.rotation, { x: -1.92, duration: 0.75, ease: "back.out(1.4)" }, at)
+        .to({}, { duration: 0.35 }) // a look at the boosters inside
+    }
+    return tl
   }
 
   // Takes a booster out of the grid: "zoom" toward the camera (it is being opened) or "fly" away (opened in bulk).
@@ -203,7 +266,8 @@ export class BoxScene extends Stage {
     if (this.opened) {
       this.camera.position.z = this.gridZ
       this.layout(this.timeline(), 0, 0)
-    } else if (!this.opening) {
+    } else if (!this.busy) {
+      // closed, or already unwrapped with reduced motion: not while an opening moves the camera
       this.camera.position.set(0, 0, this.closedZ)
     }
   }
@@ -260,6 +324,12 @@ export class BoxScene extends Stage {
   }
 }
 
-function materials(mesh: THREE.Mesh): THREE.Material[] {
-  return ([] as THREE.Material[]).concat(mesh.material)
+// every material of an object and of its children (a display's body has its walls as children)
+function materials(object: THREE.Object3D): THREE.Material[] {
+  const list: THREE.Material[] = []
+  object.traverse((o) => {
+    const mesh = o as THREE.Mesh
+    if (mesh.material) list.push(...([] as THREE.Material[]).concat(mesh.material))
+  })
+  return list
 }
