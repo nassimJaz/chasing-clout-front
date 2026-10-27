@@ -13,6 +13,7 @@ import {
   RARITIES,
   RARITY_COLORS,
   RARITY_LABELS,
+  RARITY_LETTERS,
 } from "models/game.model"
 import { GameService } from "services/game.service"
 import type { ShopScene } from "../three/shop-scene"
@@ -47,6 +48,7 @@ export class ShopComponent implements AfterViewInit, OnDestroy {
   boosters: BoosterType[] = this._route.snapshot.data["boosters"]
   rarities = RARITIES
   rarityLabels = RARITY_LABELS
+  rarityLetters = RARITY_LETTERS
   rarityColors = RARITY_COLORS
 
   boosterId = this.boosters[0]?.id

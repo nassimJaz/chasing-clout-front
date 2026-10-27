@@ -1,6 +1,6 @@
 import { Component } from "@angular/core"
 import { ActivatedRoute } from "@angular/router"
-import { Card, Finish, FINISH_LABELS, Rarity, RARITIES, RARITY_LABELS, UserCard } from "models/game.model"
+import { Card, Finish, FINISH_LABELS, Rarity, RARITIES, RARITY_LABELS, RARITY_LETTERS, UserCard } from "models/game.model"
 import { GameService } from "services/game.service"
 
 interface Entry {
@@ -21,6 +21,7 @@ export class CollectionComponent {
   entries: Entry[] = []
   rarities = RARITIES
   rarityLabels = RARITY_LABELS
+  rarityLetters = RARITY_LETTERS
   finishLabels = FINISH_LABELS
 
   rarity: Rarity | null = null

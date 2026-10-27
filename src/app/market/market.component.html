@@ -1,64 +1,73 @@
-<h1>Marché</h1>
+<div class="container page">
+  <header class="page-head">
+    <h1>Marché</h1>
+    <span class="meta">{{ listings.length }} annonces</span>
+  </header>
 
-<div class="filters">
-  <div class="d-flex flex-wrap gap-2">
-    <button class="btn" [class.btn-dark]="!rarity" [class.btn-outline-dark]="rarity" (click)="rarity = null">Toutes</button>
+  <div class="toolbar">
+    <button class="chip" [class.on]="!rarity" (click)="rarity = null">Toutes</button>
     @for (r of rarities; track r) {
-    <button class="btn" [class.btn-dark]="rarity === r" [class.btn-outline-dark]="rarity !== r" (click)="rarity = r">
+    <button class="chip" [class.on]="rarity === r" (click)="rarity = r">
+      <span class="rarity-pill rp-{{ r }}">{{ rarityLetters[r] }}</span>
       {{ rarityLabels[r] }}
     </button>
     }
+    <span class="end">
+      <label class="check">
+        <input type="checkbox" [(ngModel)]="mine" />
+        Mes annonces
+      </label>
+      <select class="field" aria-label="Tri" [(ngModel)]="sort">
+        <option value="asc">Prix croissant</option>
+        <option value="desc">Prix décroissant</option>
+      </select>
+    </span>
   </div>
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" id="mine" [(ngModel)]="mine" />
-    <label class="form-check-label" for="mine">Mes annonces</label>
-  </div>
-  <select class="form-select sort" aria-label="Tri" [(ngModel)]="sort">
-    <option value="asc">Prix croissant</option>
-    <option value="desc">Prix décroissant</option>
-  </select>
-</div>
 
-@if (message) {
-<div class="alert alert-success">{{ message }}</div>
-}
-@if (error) {
-<div class="alert alert-danger">{{ error }}</div>
-}
+  @if (message) {
+  <p class="notice notice-ok" role="status">{{ message }}</p>
+  }
+  @if (error) {
+  <p class="notice notice-error" role="alert">{{ error }}</p>
+  }
 
-@if (game.profile$ | async; as profile) {
-@if (shown(profile.username); as list) {
-@if (list.length === 0) {
-<p class="empty">
-  @if (listings.length === 0) { Aucune carte en vente. } @else { Aucune annonce pour ces filtres. }
-  <a routerLink="/collection">Mettre une carte en vente depuis la collection</a>
-</p>
-}
-<div class="listings">
-  @for (listing of list; track listing.id) {
-  <div class="listing">
-    <button class="card-btn" [attr.aria-label]="'Inspecter ' + listing.card.name" (click)="inspected = listing">
-      <meme-card [card]="listing.card" [finish]="listing.finish"></meme-card>
-    </button>
-    @if (listing.finish !== "NORMAL") {
-    <span class="finish-chip chip-{{ listing.finish }}">{{ finishLabels[listing.finish] }}</span>
-    }
-    <div class="price">{{ listing.price }} memes</div>
-    <div class="versus" [class.cheaper]="cheaper(listing)">{{ versusSystem(listing) }}</div>
-    @if (buyback(listing); as amount) {
-    <div class="buyback">Rachat système : {{ amount }} memes</div>
-    }
-    <div class="seller">{{ listing.seller === profile.username ? "Ton annonce" : listing.seller }}, le {{ date(listing) }}</div>
-    @if (listing.seller === profile.username) {
-    <button class="btn btn-sm btn-outline-dark" [disabled]="busy === listing.id" (click)="cancel(listing)">Retirer</button>
-    } @else {
-    <button class="btn btn-sm btn-dark" [disabled]="busy === listing.id" (click)="buy(listing)">Acheter</button>
+  @if (game.profile$ | async; as profile) {
+  @if (shown(profile.username); as list) {
+  @if (list.length === 0) {
+  <p class="empty">
+    @if (listings.length === 0) { Aucune carte en vente. } @else { Aucune annonce pour ces filtres. }
+    <a routerLink="/collection">Mettre une carte en vente depuis la collection</a>
+  </p>
+  }
+  <div class="card-grid">
+    @for (listing of list; track listing.id) {
+    <div class="listing">
+      <button class="card-btn" [attr.aria-label]="'Inspecter ' + listing.card.name" (click)="inspected = listing">
+        <meme-card [card]="listing.card" [finish]="listing.finish"></meme-card>
+      </button>
+      <div class="card-meta">
+        <span class="rarity-pill rp-{{ listing.card.rarity }}" [title]="rarityLabels[listing.card.rarity]">{{ rarityLetters[listing.card.rarity] }}</span>
+        @if (listing.finish !== "NORMAL") {
+        <span class="finish-chip chip-{{ listing.finish }}">{{ finishLabels[listing.finish] }}</span>
+        }
+      </div>
+      <div class="price">{{ listing.price }} memes</div>
+      <div class="versus num" [class.cheaper]="cheaper(listing)">{{ versusSystem(listing) }}</div>
+      @if (buyback(listing); as amount) {
+      <div class="small num">Rachat système {{ amount }}</div>
+      }
+      <div class="small">{{ listing.seller === profile.username ? "Ton annonce" : listing.seller }}, le {{ date(listing) }}</div>
+      @if (listing.seller === profile.username) {
+      <button class="btn btn-ghost btn-sm" [disabled]="busy === listing.id" (click)="cancel(listing)">Retirer</button>
+      } @else {
+      <button class="btn btn-acc btn-sm" [disabled]="busy === listing.id" (click)="buy(listing)">Acheter</button>
+      }
+    </div>
     }
   </div>
   }
+  }
 </div>
-}
-}
 
 @if (inspected) {
 <card-inspect [card]="inspected.card" [startFinish]="inspected.finish" (closed)="inspected = undefined"></card-inspect>

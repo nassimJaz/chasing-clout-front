@@ -1,6 +1,6 @@
 <div class="backdrop" (click)="onBackdrop($event)">
   <div class="dialog" #dialog role="dialog" aria-modal="true" [attr.aria-label]="card.name">
-    <button class="close btn btn-outline-light" aria-label="Fermer" (click)="closed.emit()">✕</button>
+    <button class="close btn btn-ghost btn-sm" aria-label="Fermer" (click)="closed.emit()">✕</button>
 
     <div class="stage" #stage [class.hidden]="fallback"></div>
     @if (fallback) {
@@ -21,11 +21,11 @@
           </button>
           @if (quantity(f)) {
           <div class="sell">
-            <input class="form-control form-control-sm" type="number" min="1" [attr.aria-label]="'Prix de mise en vente ' + finishLabels[f]" [(ngModel)]="sellPrice[f]" />
-            <button class="btn btn-sm btn-outline-light" [disabled]="busy || !sellPrice[f] || sellPrice[f]! <= 0" (click)="sell(f)">Mettre en vente</button>
+            <input class="field" type="number" min="1" [attr.aria-label]="'Prix de mise en vente ' + finishLabels[f]" [(ngModel)]="sellPrice[f]" />
+            <button class="btn btn-acc btn-sm" [disabled]="busy || !sellPrice[f] || sellPrice[f]! <= 0" (click)="sell(f)">Mettre en vente</button>
           </div>
           @if (buyback[f] !== undefined) {
-          <button class="btn btn-sm" [class.btn-ghost]="confirming !== f" [class.btn-warning]="confirming === f" [disabled]="busy" (click)="sellToSystem(f)">
+          <button class="btn btn-sm" [class.btn-ghost]="confirming !== f" [class.btn-confirm]="confirming === f" [disabled]="busy" (click)="sellToSystem(f)">
             @if (confirming === f) { Confirmer ? ({{ buyback[f] }} memes) } @else { Vendre au système ({{ buyback[f] }} memes) }
           </button>
           }

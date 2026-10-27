@@ -13,6 +13,7 @@ import {
   RARITIES,
   RARITY_COLORS,
   RARITY_LABELS,
+  RARITY_LETTERS,
   UserBooster,
   UserCard,
 } from "models/game.model"
@@ -48,6 +49,7 @@ export class BoxOpeningComponent implements OnInit, OnDestroy {
   selected?: { card: Card; owned: UserCard[] }
 
   rarityLabels = RARITY_LABELS
+  rarityLetters = RARITY_LETTERS
   rarityColors = RARITY_COLORS
   finishLabels = FINISH_LABELS
 

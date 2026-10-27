@@ -225,13 +225,22 @@
 }
 
 .prizes {
-  padding: 32px 0 32px 40px;
+  padding-top: 48px;
+  padding-bottom: 64px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.prize {
+  flex: 0 0 160px;
 }
 
 .strip {
   display: flex;
   gap: 22px;
-  padding: 24px 40px 24px 14px;
+  padding: 20px 4px 24px 14px;
   overflow-x: auto;
 
   @media (pointer: coarse) {
@@ -266,9 +275,6 @@
     margin: 0 16px;
   }
 
-  .prizes {
-    padding-left: 16px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

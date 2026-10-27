@@ -1,27 +1,37 @@
-<h1>Inventaire</h1>
+<div class="container page">
+  <header class="page-head">
+    <h1>Inventaire</h1>
+    <span class="meta">{{ groups.length }} {{ groups.length > 1 ? "lots" : "lot" }} à ouvrir</span>
+  </header>
 
-@if (groups.length === 0) {
-<p>Aucun booster à ouvrir. <a routerLink="/boutique">Passe à la boutique !</a></p>
-}
+  @if (groups.length === 0) {
+  <p class="empty">Aucun booster à ouvrir. <a routerLink="/boutique">Passe à la boutique</a></p>
+  }
 
-<div class="groups">
-  @for (group of groups; track group.key) {
-  <div class="group">
-    @if (group.purchaseId === null) {
-    <div class="booster booster-{{ group.codes[0] }}">{{ group.names[0] }}</div>
-    <div class="count">×{{ group.ids.length }}</div>
-    <a class="btn btn-dark" [routerLink]="['/ouverture', group.ids[0]]">Ouvrir</a>
-    } @else {
-    <div class="pack pack-{{ group.format }}">
-      @for (code of group.codes; track code) {
-      <div class="face booster-{{ code }}"></div>
+  <div class="groups">
+    @for (group of groups; track group.key) {
+    <div class="group tile">
+      <div class="visual">
+        @if (group.purchaseId === null) {
+        <div class="booster booster-{{ group.codes[0] }}">{{ group.names[0] }}</div>
+        } @else {
+        <div class="pack pack-{{ group.format }}">
+          @for (code of group.codes; track code) {
+          <div class="face booster-{{ code }}"></div>
+          }
+          <span>{{ group.label }}</span>
+        </div>
+        }
+      </div>
+      <div class="names">{{ group.names.join(" + ") }}</div>
+      @if (group.purchaseId === null) {
+      <div class="meta">×{{ group.ids.length }}</div>
+      <a class="btn btn-acc btn-sm" [routerLink]="['/ouverture', group.ids[0]]">Ouvrir</a>
+      } @else {
+      <div class="meta">{{ group.label }}, {{ group.ids.length }} / {{ group.total }} restants</div>
+      <a class="btn btn-acc btn-sm" [routerLink]="['/ouverture/box', group.purchaseId]">Ouvrir la box</a>
       }
-      <span>{{ group.label }}</span>
     </div>
-    <div class="names">{{ group.names.join(" + ") }}</div>
-    <div class="left">{{ group.ids.length }} / {{ group.total }} restants</div>
-    <a class="btn btn-dark" [routerLink]="['/ouverture/box', group.purchaseId]">Ouvrir la box</a>
     }
   </div>
-  }
 </div>

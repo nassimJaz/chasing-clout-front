@@ -1,18 +1,13 @@
 :host {
   display: block;
-  padding: 25px;
 }
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
+.end {
+  display: inline-flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.sort {
-  width: auto;
+  gap: 12px;
+  margin-left: auto;
+  color: var(--fg2);
 }
 
 .empty a {
@@ -20,53 +15,38 @@
   margin-top: 6px;
 }
 
-.listings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px 18px;
-}
-
 .listing {
-  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
-  width: 160px;
-
-  .card-btn {
-    margin-bottom: 6px;
-  }
-
-  .finish-chip {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    z-index: 1;
-  }
 
   .btn {
-    margin-top: 6px;
+    margin-top: 10px;
   }
 }
 
 .price {
-  font-size: 1.2em;
-  font-weight: 700;
+  margin-top: 8px;
+  font: 500 16px var(--font-mono);
+  color: var(--gold);
 }
 
 .versus {
-  min-height: 1.4em;
-  font-size: 0.85em;
+  font-size: 12px;
   color: var(--warn);
 
   &.cheaper {
-    color: #2e7d32;
+    color: var(--ok);
   }
 }
 
-.buyback,
-.seller {
-  font-size: 0.85em;
-  color: #666;
+.small {
+  color: var(--mut);
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .end {
+    margin-left: 0;
+  }
 }

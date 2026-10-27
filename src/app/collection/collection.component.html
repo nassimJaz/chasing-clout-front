@@ -1,39 +1,44 @@
-<h1>Collection <small>{{ progress(null) }}</small></h1>
+<div class="container page">
+  <header class="page-head">
+    <h1>Collection</h1>
+    <span class="meta">{{ progress(null) }} cartes possédées</span>
+  </header>
 
-<div class="filters">
-  <div class="d-flex flex-wrap gap-2">
-    <button class="btn" [class.btn-dark]="!rarity" [class.btn-outline-dark]="rarity" (click)="rarity = null">
-      Toutes
-    </button>
+  <div class="toolbar">
+    <button class="chip" [class.on]="!rarity" (click)="rarity = null">Toutes</button>
     @for (r of rarities; track r) {
-    <button class="btn" [class.btn-dark]="rarity === r" [class.btn-outline-dark]="rarity !== r" (click)="rarity = r">
-      {{ rarityLabels[r] }} <small>{{ progress(r) }}</small>
+    <button class="chip" [class.on]="rarity === r" (click)="rarity = r">
+      <span class="rarity-pill rp-{{ r }}">{{ rarityLetters[r] }}</span>
+      {{ rarityLabels[r] }} <span class="num">{{ progress(r) }}</span>
     </button>
     }
+    <label class="check owned-only">
+      <input type="checkbox" [(ngModel)]="ownedOnly" />
+      Possédées seulement
+    </label>
   </div>
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" id="owned" [(ngModel)]="ownedOnly" />
-    <label class="form-check-label" for="owned">Possédées seulement</label>
-  </div>
-</div>
 
-<div class="cards">
-  @for (entry of shown; track entry.card.id) {
-  <div class="entry">
-    <button class="card-btn" [attr.aria-label]="'Inspecter ' + entry.card.name" (click)="selected = entry">
-      <meme-card
-        [card]="entry.card"
-        [finish]="entry.owned.length ? entry.owned[0].finish : 'NORMAL'"
-        [missing]="entry.owned.length === 0"
-      ></meme-card>
-    </button>
-    <div class="owned">
-      @for (owned of entry.owned; track owned.finish) {
-      <span class="finish-chip chip-{{ owned.finish }}">{{ finishLabels[owned.finish] }} ×{{ owned.quantity }}</span>
-      }
+  <div class="card-grid">
+    @for (entry of shown; track entry.card.id) {
+    <div class="entry" [class.missing]="entry.owned.length === 0">
+      <button class="card-btn" [attr.aria-label]="'Inspecter ' + entry.card.name" (click)="selected = entry">
+        <meme-card
+          [card]="entry.card"
+          [finish]="entry.owned.length ? entry.owned[0].finish : 'NORMAL'"
+          [missing]="entry.owned.length === 0"
+        ></meme-card>
+      </button>
+      <div class="card-meta">
+        <span class="rarity-pill rp-{{ entry.card.rarity }}" [title]="rarityLabels[entry.card.rarity]">{{ rarityLetters[entry.card.rarity] }}</span>
+        @for (owned of entry.owned; track owned.finish) {
+        <span class="finish-chip chip-{{ owned.finish }}">{{ finishLabels[owned.finish] }} ×{{ owned.quantity }}</span>
+        } @empty {
+        <span>Manquante</span>
+        }
+      </div>
     </div>
+    }
   </div>
-  }
 </div>
 
 @if (selected) {

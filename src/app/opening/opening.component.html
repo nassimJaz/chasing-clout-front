@@ -1,29 +1,37 @@
 @if (error) {
-<div class="alert alert-danger">{{ error }} — <a routerLink="/inventaire">retour à l'inventaire</a></div>
+<div class="container page">
+  <p class="notice notice-error" role="alert">{{ error }}. <a routerLink="/inventaire">Retour à l'inventaire</a></p>
+</div>
 } @else if (phase === "loading") {
 <div class="play cc-stage"><p class="hint">Ouverture…</p></div>
 } @else if (phase === "playing") {
 <booster-opening class="play" [cards]="cards" [booster]="booster" (done)="recap()"></booster-opening>
 } @else {
-<div class="recap">
-  <h1>Ouverture</h1>
-  <div class="cards">
+<div class="container page recap">
+  <header class="page-head">
+    <h1>Ouverture</h1>
+    <span class="meta">{{ booster?.name }}, {{ cards.length }} cartes</span>
+  </header>
+  <div class="card-grid">
     @for (pulled of cards; track pulled.position) {
     <div class="slot">
       <meme-card [card]="pulled.card" [finish]="pulled.finish"></meme-card>
-      @if (pulled.finish !== "NORMAL") {
-      <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
-      }
+      <div class="card-meta">
+        <span class="rarity-pill rp-{{ pulled.card.rarity }}" [title]="rarityLabels[pulled.card.rarity]">{{ rarityLetters[pulled.card.rarity] }}</span>
+        @if (pulled.finish !== "NORMAL") {
+        <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }}</span>
+        }
+      </div>
     </div>
     }
   </div>
 
   <div class="actions">
     @if (next) {
-    <a class="btn btn-dark" [routerLink]="['/ouverture', next.id]">Ouvrir le suivant ({{ next.name }})</a>
+    <a class="btn btn-acc btn-big" [routerLink]="['/ouverture', next.id]">Ouvrir le suivant ({{ next.name }})</a>
     }
-    <a class="btn btn-outline-dark" routerLink="/inventaire">Inventaire</a>
-    <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
+    <a class="btn btn-ghost" routerLink="/inventaire">Inventaire</a>
+    <a class="btn btn-ghost" routerLink="/collection">Collection</a>
   </div>
 </div>
 }

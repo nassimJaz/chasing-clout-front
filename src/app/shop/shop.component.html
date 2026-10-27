@@ -102,13 +102,22 @@
   </div>
 </section>
 
-<section class="prizes">
-  <h2>Les plus rares de la collection</h2>
+<section class="container prizes">
+  <header class="page-head">
+    <h2>Les plus rares de la collection</h2>
+    <span class="meta">Ultra rares et Secrètes, à gagner dans les boosters</span>
+  </header>
   <div class="strip" #strip (mouseenter)="pauseStrip(true)" (mouseleave)="pauseStrip(false)" (focusin)="pauseStrip(true)" (focusout)="pauseStrip(false)">
     @for (card of prizes; track card.id; let i = $index) {
-    <button class="card-btn" [attr.aria-label]="'Inspecter ' + card.name" (click)="inspect(card, i)">
-      <meme-card [card]="card" [finish]="prizeFinish(i)"></meme-card>
-    </button>
+    <div class="prize">
+      <button class="card-btn" [attr.aria-label]="'Inspecter ' + card.name" (click)="inspect(card, i)">
+        <meme-card [card]="card" [finish]="prizeFinish(i)"></meme-card>
+      </button>
+      <div class="card-meta">
+        <span class="rarity-pill rp-{{ card.rarity }}" [title]="rarityLabels[card.rarity]">{{ rarityLetters[card.rarity] }}</span>
+        <span class="name">{{ card.name }}</span>
+      </div>
+    </div>
     }
   </div>
 </section>

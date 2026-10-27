@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, NgZone, OnInit } from "@angular/core"
 import { ActivatedRoute } from "@angular/router"
 import { Subscription, switchMap } from "rxjs"
-import { apiError, FINISH_LABELS, PulledCard, UserBooster } from "models/game.model"
+import { apiError, FINISH_LABELS, PulledCard, RARITY_LABELS, RARITY_LETTERS, UserBooster } from "models/game.model"
 import { GameService } from "services/game.service"
 
 type Phase = "loading" | "playing" | "recap"
@@ -19,6 +19,8 @@ export class OpeningComponent implements OnInit {
   next?: UserBooster
   error = ""
   finishLabels = FINISH_LABELS
+  rarityLabels = RARITY_LABELS
+  rarityLetters = RARITY_LETTERS
 
   private sub?: Subscription
 

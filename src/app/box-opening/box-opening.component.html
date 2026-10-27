@@ -1,5 +1,7 @@
 @if (empty) {
-<div class="alert alert-info">Il ne reste aucun booster à ouvrir dans cet achat. <a routerLink="/inventaire">Retour à l'inventaire</a></div>
+<div class="container page">
+  <p class="empty">Il ne reste aucun booster à ouvrir dans cet achat. <a routerLink="/inventaire">Retour à l'inventaire</a></p>
+</div>
 }
 
 <div class="stage cc-stage" #stage [class.hidden]="phase === 'recap' || empty" [class.idle]="phase !== 'closed'" (click)="onStageClick()">
@@ -13,7 +15,7 @@
     </div>
     }
     @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <p class="notice notice-error" role="alert">{{ error }}</p>
     }
   </div>
   @if (phase === "closed" || phase === "grid") {
@@ -32,36 +34,42 @@
 </div>
 
 @if (phase === "recap") {
-<div class="recap">
-  <h1>{{ label }} {{ title }}</h1>
+<div class="container page recap">
+  <header class="page-head">
+    <h1>{{ label }}</h1>
+    <span class="meta">{{ title }}, {{ pulled.length }} cartes</span>
+  </header>
   @if (error) {
-  <div class="alert alert-danger">{{ error }}. Les boosters restants sont toujours dans l'inventaire.</div>
+  <p class="notice notice-error" role="alert">{{ error }}. Les boosters restants sont toujours dans l'inventaire.</p>
   }
   <div class="summary">
     @for (r of rarityCounts; track r.rarity) {
-    <span class="count" [style.color]="rarityColors[r.rarity]"><strong>{{ r.count }}</strong> {{ rarityLabels[r.rarity] }}</span>
+    <span class="count"><span class="rarity-pill rp-{{ r.rarity }}">{{ rarityLetters[r.rarity] }}</span> <span class="num">×{{ r.count }}</span> {{ rarityLabels[r.rarity] }}</span>
     }
     @for (f of finishCounts; track f.finish) {
     <span class="finish-chip chip-{{ f.finish }}">{{ finishLabels[f.finish] }} ×{{ f.count }}</span>
     }
   </div>
 
-  <div class="cards">
+  <div class="card-grid">
     @for (pulled of sorted; track $index) {
     <div class="slot">
       <button class="card-btn" [attr.aria-label]="'Inspecter ' + pulled.card.name" (click)="inspect(pulled)">
         <meme-card [card]="pulled.card" [finish]="pulled.finish"></meme-card>
       </button>
-      @if (pulled.finish !== "NORMAL") {
-      <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }} !</span>
-      }
+      <div class="card-meta">
+        <span class="rarity-pill rp-{{ pulled.card.rarity }}" [title]="rarityLabels[pulled.card.rarity]">{{ rarityLetters[pulled.card.rarity] }}</span>
+        @if (pulled.finish !== "NORMAL") {
+        <span class="finish-chip chip-{{ pulled.finish }}">{{ finishLabels[pulled.finish] }}</span>
+        }
+      </div>
     </div>
     }
   </div>
 
   <div class="actions">
-    <a class="btn btn-dark" routerLink="/inventaire">Inventaire</a>
-    <a class="btn btn-outline-dark" routerLink="/collection">Collection</a>
+    <a class="btn btn-acc btn-big" routerLink="/inventaire">Inventaire</a>
+    <a class="btn btn-ghost" routerLink="/collection">Collection</a>
   </div>
 </div>
 }

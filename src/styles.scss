@@ -445,79 +445,84 @@ select.field {
 .rp-ULTRA_RARE { background: #fb8c00; }
 .rp-SECRET { background: linear-gradient(135deg, #f9e27d, #c9a227); }
 
-// ---------------------------------------------------------------------------- Bootstrap names still in
-// some templates, mapped to the classes above.
-.btn-dark {
-  @extend .btn-acc;
+// ---------------------------------------------------------------------------- page layout
+// <div class="container page"> then a .page-head: the title and its counters, over a hairline
+.page {
+  padding-top: 32px;
+  padding-bottom: 64px;
 }
 
-.btn-outline-dark,
-.btn-outline-light {
-  @extend .btn-ghost;
-}
-
-.btn-warning {
-  @extend .btn-confirm;
-}
-
-.btn-lg {
-  @extend .btn-big;
-}
-
-.alert {
-  @extend .notice;
-}
-
-.alert-danger {
-  @extend .notice-error;
-}
-
-.alert-success {
-  @extend .notice-ok;
-}
-
-.form-select,
-.form-control {
-  @extend .field;
-}
-
-.form-select {
-  appearance: none;
-  padding-right: 36px;
-  background: var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b794ff' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;
-}
-
-.form-control-sm {
-  min-height: 36px;
-  padding: 0 10px;
-  font-size: 13px;
-}
-
-.form-check {
-  @extend .check;
-}
-
-.form-check-input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--acc);
-}
-
-.form-switch .form-check-input {
-  @extend .switch;
-}
-
-.d-flex {
+.page-head {
   display: flex;
-}
-
-.flex-wrap {
   flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+
+  h1 {
+    margin: 0;
+  }
 }
 
-.gap-2 {
-  gap: 8px;
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 32px;
+}
+
+// dense grid of cards: they shrink to the column (about 150 px wide)
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 32px 22px;
+
+  meme-card {
+    width: 100%;
+  }
+
+  .card-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+}
+
+// what sits under a card: pills and mono figures
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--mut);
+  font: 500 12px/1.4 var(--font-mono);
+}
+
+// a card name in the meta line stays in the text font (mono is for figures)
+.card-meta .name {
+  overflow: hidden;
+  color: var(--fg2);
+  font: 500 12px var(--font);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 48px 24px;
+  border: 1px dashed var(--line3);
+  border-radius: var(--r-3);
+  color: var(--fg2);
+  text-align: center;
 }
 
 // ---------------------------------------------------------------------------- game objects
@@ -565,21 +570,26 @@ select.field {
 
 // A finish badge: <span class="finish-chip chip-{{ finish }}">
 .finish-chip {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: #666;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.8em;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--fg);
+  font: 700 11px/1 var(--font);
+  white-space: nowrap;
 }
 
+// dark text on light gradients: AA (6.9 to 12 to 1)
 .chip-HOLO {
-  background: linear-gradient(90deg, #ff00aa, #00c3ff);
+  background: linear-gradient(90deg, #b794ff, #5ee7ff);
+  color: #0e0d12;
 }
 
 .chip-FIRE {
-  background: linear-gradient(90deg, #ff3c00, #ffae00);
+  background: linear-gradient(90deg, #ffb020, #ff6a00);
+  color: #0e0d12;
 }
 
 // A clickable card (collection, recaps): <button class="card-btn"><meme-card>

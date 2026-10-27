@@ -10,6 +10,7 @@ import {
   Rarity,
   RARITIES,
   RARITY_LABELS,
+  RARITY_LETTERS,
 } from "models/game.model"
 import { GameService } from "services/game.service"
 
@@ -23,6 +24,7 @@ export class MarketComponent {
   listings: Listing[] = this._route.snapshot.data["listings"]
   rarities = RARITIES
   rarityLabels = RARITY_LABELS
+  rarityLetters = RARITY_LETTERS
   finishLabels = FINISH_LABELS
 
   mine = false

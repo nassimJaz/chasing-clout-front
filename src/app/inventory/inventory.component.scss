@@ -1,36 +1,36 @@
-:host {
-  display: block;
-  padding: 25px;
-}
-
+// a tile per purchase (or per booster type): its pack, its names, what is left
 .groups {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  padding: 24px 16px 16px;
+  text-align: center;
+
+  .btn {
+    align-self: stretch;
+    margin-top: 10px;
+  }
 }
 
-.count {
-  font-size: 1.5em;
-  font-weight: 700;
+// the packs keep their size, centered in a fixed-height area
+.visual {
+  display: grid;
+  place-items: center;
+  height: 230px;
 }
 
 .names {
-  font-weight: 500;
+  margin-top: 8px;
+  font-weight: 700;
 }
 
-.left {
-  color: #666;
-}
-
-// A purchase: the booster colors (both halves for a mixed display), bigger with the format.
 .pack {
   position: relative;
   display: flex;
@@ -79,12 +79,12 @@
 }
 
 .pack-DISPLAY_MEDIUM {
-  width: 220px;
-  height: 165px;
+  width: 200px;
+  height: 150px;
 }
 
 .pack-DISPLAY_MEGA {
-  width: 280px;
-  height: 205px;
+  width: 236px;
+  height: 176px;
   font-size: 1.2em;
 }
