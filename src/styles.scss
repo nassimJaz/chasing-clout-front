@@ -621,7 +621,7 @@ select.field {
 }
 
 // <meme-card finish="FIRE">: a border of flames behind the card, its edges torn by the #cc-fire filter
-// (app.component.html), with embers rising. Here rather than in the component, for its style budget.
+// (app.component.html). Here rather than in the component, for its style budget.
 meme-card .flames {
   // (the card also gets the holo sheen of .finish-FIRE::after)
   position: absolute;
@@ -632,20 +632,6 @@ meme-card .flames {
   box-shadow: 0 6px 26px 4px #ff4a0080;
   filter: url(#cc-fire);
   pointer-events: none;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -30px 0 0;
-    background:
-      radial-gradient(circle at 3% 72%, #fff3c4 0 1.5px, #ffb020 3px, transparent 6px),
-      radial-gradient(circle at 97% 58%, #fff3c4 0 1.5px, #ff8a00 3px, transparent 6px),
-      radial-gradient(circle at 6% 35%, #fff3c4 0 1px, #ff8a00 2.5px, transparent 5px),
-      radial-gradient(circle at 94% 25%, #fff3c4 0 1px, #ffb020 2.5px, transparent 5px),
-      radial-gradient(circle at 30% 10%, #fff3c4 0 1.5px, #ffb020 3px, transparent 6px),
-      radial-gradient(circle at 72% 14%, #fff3c4 0 1px, #ff6a00 2.5px, transparent 5px);
-    animation: embers 1.8s linear infinite;
-  }
 }
 
 // in the dense grids and the shop strip: half as thick, so it stays clear of the next card
@@ -656,19 +642,9 @@ meme-card .flames {
   box-shadow: 0 4px 14px 2px #ff4a0059;
 }
 
-@keyframes embers {
-  from { transform: translateY(20px); opacity: 1; }
-  to { transform: translateY(-40px); opacity: 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   meme-card .flames {
     filter: url(#cc-fire-still);
-
-    &::before {
-      animation: none;
-      opacity: 0.6;
-    }
   }
 }
 

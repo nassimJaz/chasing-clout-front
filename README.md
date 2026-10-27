@@ -50,10 +50,10 @@ compte à rebours sinon ; c'est l'API qui décide et renvoie une 429 si c'est tr
 - `services/auth.service.ts` : connexion, inscription, déconnexion, le jeton (`token$`) et les guards `loggedIn` / `loggedOut` ;
   `services/auth.interceptor.ts` : le header `Authorization`
 - `meme-card/` : une carte en CSS (retournement, cadre selon la rareté, reflet holo ; bordure de flammes via le filtre SVG
-  `#cc-fire` défini une fois dans `app.component.html` et braises pour la finition Enflammée), utilisée par les grilles
+  `#cc-fire` défini une fois dans `app.component.html` pour la finition Enflammée), utilisée par les grilles
 - `three/` : les scènes 3D (Three.js + GSAP), toujours chargées en `import()` pour rester hors du bundle initial :
   `stage.ts` (socle commun), `studio.ts` (éclairage produit : environnement, ombres douces), `card-art.ts` (cartes, holo ;
-  flammes en shader, braises et dos incandescent de la finition Enflammée), `booster-art.ts` (booster en alu : coussin,
+  flammes en shader et dos incandescent de la finition Enflammée), `booster-art.ts` (booster en alu : coussin,
   sertissages, froissé, foil), `pack-art.ts` (tri-pack sous blister, box en carton avec cellophane et couvercle à charnière),
   `booster-scene.ts`, `box-scene.ts`, `card-viewer.ts`, `shop-scene.ts`, et `thumbs.ts` (vignettes des packs de l'inventaire,
   rendues une fois hors écran)

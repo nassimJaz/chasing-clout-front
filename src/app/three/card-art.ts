@@ -32,24 +32,11 @@ export interface CardObject {
 
 export interface Fire {
   sheet: THREE.Mesh // the flames, a shader plane hugging the card
-  back: THREE.Mesh // the fiery rim and embers on the back
-  points: THREE.Points // the embers
-  embers: Embers
+  back: THREE.Mesh // the fiery rim on the back
   intensity: { value: number } // flames, 0..1
   reach: { value: number } // how high the flames have climbed, 0..1
-  glow: { value: number } // embers and back, 0..1
+  glow: { value: number } // the rim on the back, 0..1
   on: boolean // true while burning or dying out
-}
-
-interface Embers {
-  baseX: Float32Array
-  baseY: Float32Array
-  baseZ: Float32Array
-  rise: Float32Array // how high it goes before dying
-  speed: Float32Array
-  phase: Float32Array
-  freq: Float32Array
-  age: Float32Array // 0..1
 }
 
 // Two planes back to back: the back is a mesh of its own, so it shows whatever the GPU culls. Starts face down.
@@ -110,13 +97,12 @@ export function holo(material: THREE.MeshStandardMaterial, uTime: { value: numbe
 }
 
 // Fire finish: flame tongues licking the card edges (a noise shader on a plane behind the card, seen
-// from both sides), big glowing embers swirling up, and on the back a pulsing fiery rim with embers
-// smouldering in its stripes. The face gets the embossed holo (see frontMaterial). Hidden until setFire(on):
+// from both sides) and on the back a fiery rim pulsing on its edge. The face gets the holo (see
+// frontMaterial). Hidden until setFire(on):
 // the scenes only light it once the card is face up, so the back never gives the finish away.
 const SHEET_W = CARD_W * 1.5
 const SHEET_H = CARD_H * 1.6
 const SHEET_Y = (SHEET_H - CARD_H) / 2 - 0.25 // anchored a little under the card, the flames rise above it
-const EMBERS = 100
 
 const PLANE_VERTEX = `
 varying vec2 vUv;
@@ -183,19 +169,13 @@ void main() {
   gl_FragColor = vec4(c * alpha, alpha);
 }`
 
-// The back of a fire card: a rim of fire pulsing on its edge, embers glowing in the stripes.
+// The back of a fire card: a rim of fire pulsing on its edge.
 const BACK_FRAGMENT = `
 uniform float uTime;
 uniform float uIntensity;
 uniform vec2 uCard;
 varying vec2 vUv;
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float noise(vec2 p) {
-  vec2 i = floor(p), f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0)), u.x), u.y);
-}
 float card(vec2 p) {
   vec2 q = abs(p) - uCard * 0.5 + 0.12;
   return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 0.12;
@@ -207,40 +187,13 @@ void main() {
   if (d > 0.0) discard;
   float pulse = 0.75 + 0.25 * sin(uTime * 3.0 + p.y * 2.0);
   float rim = exp(d * 40.0) * pulse * 0.8;
-  // the diagonal stripes of the back, a few embers smouldering in them
-  float stripe = smoothstep(0.35, 0.5, abs(fract((p.x + p.y) * 2.2) - 0.5));
-  float ember = smoothstep(0.72, 0.9, noise(p * 11.0 + vec2(0.0, -uTime * 0.5))) * stripe;
-  vec3 c = vec3(1.0, 0.38, 0.0) * rim + vec3(0.9, 0.35, 0.02) * ember * (0.55 + 0.45 * sin(uTime * 4.0 + p.x * 7.0));
-  gl_FragColor = vec4(c * uIntensity, 1.0);
-}`
-
-const EMBER_VERTEX = `
-attribute float size;
-attribute vec3 color;
-uniform float uScale;
-varying vec3 vColor;
-void main() {
-  vColor = color;
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = size * uScale / -mv.z;
-  gl_Position = projectionMatrix * mv;
-}`
-
-// a white-yellow core in an orange glow; the color brightness carries the ember's life
-const EMBER_FRAGMENT = `
-varying vec3 vColor;
-void main() {
-  float r = length(gl_PointCoord - 0.5) * 2.0;
-  float glow = pow(max(0.0, 1.0 - r), 2.0);
-  float core = smoothstep(0.35, 0.0, r);
-  float life = max(vColor.r, max(vColor.g, vColor.b));
-  gl_FragColor = vec4(vColor * glow + vec3(1.0, 0.95, 0.75) * core * life, 1.0);
+  gl_FragColor = vec4(vec3(1.0, 0.38, 0.0) * rim * uIntensity, 1.0);
 }`
 
 export function buildFire(kit: Kit, root: THREE.Group): Fire {
   const intensity = { value: 0 } // flames
   const reach = { value: 0 }
-  const glow = { value: 0 } // embers and the back
+  const glow = { value: 0 } // the rim on the back
   const additive = { transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }
   const card = { value: new THREE.Vector2(CARD_W, CARD_H) }
 
@@ -278,39 +231,7 @@ export function buildFire(kit: Kit, root: THREE.Group): Fire {
   const flip = root.children[0] ?? root
   flip.add(sheet, back)
 
-  const embers: Embers = {
-    baseX: new Float32Array(EMBERS),
-    baseY: new Float32Array(EMBERS),
-    baseZ: new Float32Array(EMBERS),
-    rise: new Float32Array(EMBERS),
-    speed: new Float32Array(EMBERS),
-    phase: new Float32Array(EMBERS),
-    freq: new Float32Array(EMBERS),
-    age: new Float32Array(EMBERS),
-  }
-  const sizes = new Float32Array(EMBERS)
-  for (let i = 0; i < EMBERS; i++) {
-    spawn(embers, i)
-    embers.age[i] = Math.random() // spread over their life from the start
-    sizes[i] = gsap.utils.random(0.14, 0.38)
-  }
-  const geometry = new THREE.BufferGeometry()
-  geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(EMBERS * 3), 3))
-  geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(EMBERS * 3), 3))
-  geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1))
-  const material = new THREE.ShaderMaterial({
-    vertexShader: EMBER_VERTEX,
-    fragmentShader: EMBER_FRAGMENT,
-    uniforms: { uScale: { value: 400 } },
-    ...additive,
-  })
-  const points = new THREE.Points(geometry, material)
-  // sizeAttenuation like PointsMaterial: half the drawing buffer height
-  points.onBeforeRender = (renderer) => (material.uniforms["uScale"].value = renderer.domElement.height / 2)
-  points.frustumCulled = false
-  root.add(points)
-
-  const fire: Fire = { sheet, back, points, embers, intensity, reach, glow, on: false }
+  const fire: Fire = { sheet, back, intensity, reach, glow, on: false }
   show(fire, false)
   return fire
 }
@@ -318,33 +239,9 @@ export function buildFire(kit: Kit, root: THREE.Group): Fire {
 function show(fire: Fire, visible: boolean): void {
   fire.sheet.visible = visible
   fire.back.visible = visible
-  fire.points.visible = visible
 }
 
-// Embers start beside or under the card; some drift a little in front of it, never over the middle.
-function spawn(e: Embers, i: number): void {
-  const w = CARD_W / 2
-  const h = CARD_H / 2
-  if (Math.random() < 0.65) {
-    // the sides: these may pass a little in front, over the frame only
-    const side = Math.random() < 0.5 ? -1 : 1
-    e.baseX[i] = side * (w + gsap.utils.random(-0.1, 0.2))
-    e.baseY[i] = gsap.utils.random(-h, h * 0.5)
-    e.baseZ[i] = gsap.utils.random(-0.05, 0.25)
-  } else {
-    // under the card: behind it, seen below it and above it
-    e.baseX[i] = gsap.utils.random(-w, w)
-    e.baseY[i] = -h - gsap.utils.random(0, 0.2)
-    e.baseZ[i] = -0.06
-  }
-  e.rise[i] = gsap.utils.random(1.2, 2.6)
-  e.speed[i] = gsap.utils.random(0.3, 0.7)
-  e.phase[i] = Math.random() * Math.PI * 2
-  e.freq[i] = gsap.utils.random(1.5, 3.5)
-  e.age[i] = 0
-}
-
-// Catches from the bottom (embers, then flames climbing) or dies out the other way.
+// Catches from the bottom (the rim, then the flames climbing) or dies out the other way.
 // fast: cut in 0.25 s, e.g. when the card leaves for the row.
 export function setFire(fire: Fire, on: boolean, fast = false): void {
   gsap.killTweensOf([fire.intensity, fire.reach, fire.glow])
@@ -368,32 +265,9 @@ export function setFire(fire: Fire, on: boolean, fast = false): void {
   gsap.to(fire.glow, { value: 0, duration: 0.3, delay: 0.5, onComplete: out })
 }
 
-const HOT = new THREE.Color("#ffb020")
-const COLD = new THREE.Color("#ff4a00")
-const tmp = new THREE.Color()
-
-// One frame of embers (the flames and the back move in their shaders): they swirl up, twinkle and fade.
-export function burn(fire: Fire, dt: number, t: number): void {
-  const e = fire.embers
-  const k = fire.glow.value
-  const pos = fire.points.geometry.getAttribute("position") as THREE.BufferAttribute
-  const col = fire.points.geometry.getAttribute("color") as THREE.BufferAttribute
-  for (let i = 0; i < EMBERS; i++) {
-    e.age[i] += (dt * e.speed[i]) / e.rise[i]
-    if (e.age[i] >= 1) spawn(e, i)
-    const life = e.age[i]
-    const swirl = t * e.freq[i] + e.phase[i]
-    const x = e.baseX[i] + Math.sin(swirl) * 0.14 * (0.3 + life)
-    const z = e.baseZ[i] > 0 ? e.baseZ[i] + Math.cos(swirl) * 0.08 : e.baseZ[i]
-    pos.setXYZ(i, x, e.baseY[i] + life * e.rise[i], z)
-    const twinkle = 0.7 + 0.3 * Math.sin(t * 18 + e.phase[i] * 7)
-    const fade = Math.min(1, life * 5) * (1 - life)
-    tmp.copy(HOT).lerp(COLD, life).multiplyScalar(fade * twinkle * k)
-    col.setXYZ(i, tmp.r, tmp.g, tmp.b)
-  }
-  pos.needsUpdate = true
-  col.needsUpdate = true
-}
+// One frame of fire: nothing to move here, the flames and the rim are animated in their shaders.
+// Kept so the scenes can call it every frame whatever the finish does.
+export function burn(_fire: Fire, _dt: number, _t: number): void {}
 
 export function sparkMaterial(kit: Kit, size: number, vertexColors: boolean): THREE.PointsMaterial {
   return new THREE.PointsMaterial({
