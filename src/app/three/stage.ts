@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import { gsap } from "gsap"
 import { drawSpark, Kit } from "./card-art"
+import { studio, Studio } from "./studio"
 
 // What every 3D scene of the app shares: renderer, camera, lights, render loop, resize, mouse, cleanup.
 // Only ever imported with import(), like the scenes built on it, so three and gsap stay in a lazy chunk.
@@ -11,6 +12,8 @@ export abstract class Stage {
   protected mouse = new THREE.Vector2() // -1..1, y up
   protected uTime = { value: 0 }
   protected disposed = false
+  protected sun = new THREE.DirectionalLight("#ffffff", 1.8)
+  protected lights?: Studio // studio lighting, for the scenes showing products
 
   private textures: THREE.Texture[] = []
   private timelines = new Set<gsap.core.Timeline>()
@@ -36,9 +39,13 @@ export abstract class Stage {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this.container.appendChild(this.renderer.domElement)
     this.scene.add(new THREE.AmbientLight("#ffffff", 1.6))
-    const sun = new THREE.DirectionalLight("#ffffff", 1.8)
-    sun.position.set(2, 3, 6)
-    this.scene.add(sun)
+    this.sun.position.set(2, 3, 6)
+    this.scene.add(this.sun)
+  }
+
+  // Opt-in product lighting (see studio.ts), after setup().
+  protected studio(): Studio {
+    return (this.lights ??= studio(this.renderer, this.scene, this.sun))
   }
 
   // Once the scene is built: follow the container size and the mouse, start the render loop.
@@ -83,6 +90,7 @@ export abstract class Stage {
       materials.forEach((m) => m.dispose())
     })
     this.textures.forEach((t) => t.dispose())
+    this.lights?.dispose()
     this.renderer.dispose()
     this.renderer.forceContextLoss()
     this.canvas.remove()

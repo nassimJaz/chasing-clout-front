@@ -4,6 +4,7 @@ import { PurchaseFormat, UserBooster } from "models/game.model"
 import { loadFonts } from "./card-art"
 import { boosterColors, boosterMaterial, BOOSTER_H, BOOSTER_W, buildPack, drawBooster, Pack } from "./pack-art"
 import { Stage } from "./stage"
+import { castShadows } from "./studio"
 
 // A whole purchase in 3D: the closed pack (booster, tri-pack or display box) floats; once open,
 // its boosters line up in arched rows and the one picked with the mouse is sent to the component.
@@ -61,6 +62,9 @@ export class BoxScene extends Stage {
 
     this.pack = buildPack(this.kit, this.format, this.boosters, this.title)
     this.scene.add(this.pack.group)
+    // the closed pack in studio light, standing on its shadow
+    castShadows(this.pack.group)
+    this.studio().place(-this.pack.size.h / 2 - 0.02, this.pack.size)
     if (this.isBox) {
       // hidden inside the box, they come out of its top when it opens
       const textures = new Map<string, THREE.Texture>()

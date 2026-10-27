@@ -61,7 +61,7 @@ export function createCardObject(
 ): CardObject {
   const geometry = new THREE.PlaneGeometry(CARD_W, CARD_H)
   const front = new THREE.Mesh(geometry, frontMaterial(kit, kit.texture(drawCardFront(item.card, image)), item.finish))
-  const backMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: back, alphaTest: 0.5, roughness: 0.5 }))
+  const backMesh = new THREE.Mesh(geometry, cardMaterial(back))
   backMesh.rotation.y = Math.PI
 
   const flip = new THREE.Group()
@@ -75,8 +75,14 @@ export function createCardObject(
   return card
 }
 
+// A card face. Out of the studio lighting of the pack scenes (no tone mapping, no environment), so the
+// cards and their holo look the same everywhere.
+function cardMaterial(map: THREE.Texture): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({ map, alphaTest: 0.5, roughness: 0.5, toneMapped: false, envMapIntensity: 0 })
+}
+
 export function frontMaterial(kit: Kit, map: THREE.Texture, finish: Finish): THREE.MeshStandardMaterial {
-  const material = new THREE.MeshStandardMaterial({ map, alphaTest: 0.5, roughness: 0.5 })
+  const material = cardMaterial(map)
   // fire cards get the holo sheen too, inside their flames
   if (finish === "HOLO" || finish === "FIRE") holo(material, kit.uTime)
   return material
