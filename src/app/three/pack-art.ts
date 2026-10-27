@@ -55,25 +55,28 @@ export function packColors(codes: string[]): string[] {
   return distinct.length > 1 ? distinct.flatMap((c) => boosterColors(c).slice(0, 2)) : boosterColors(distinct[0])
 }
 
-// clear film: cellophane or blister plastic. A thin, glossy transparent layer that mostly shows the studio
-// reflections (transmission would not see the cardboard, which is transparent so it can fade).
-function film(geometry: THREE.BufferGeometry): THREE.Mesh {
+// clear film: cellophane or blister plastic. Almost invisible: a black, glossy surface added on top of
+// the scene, so only its reflections show (glints moving with the pack, edges catching the light).
+// It adds color but no alpha: the transparent canvas stays transparent around the pack.
+function film(geometry: THREE.BufferGeometry, reflection: number): THREE.Mesh {
   const mesh = new THREE.Mesh(
     geometry,
-    new THREE.MeshPhysicalMaterial({
-      color: "#ffffff",
-      roughness: 0.04,
+    new THREE.MeshStandardMaterial({
+      color: "#000000",
+      roughness: 0.08,
       metalness: 0,
-      clearcoat: 1,
-      clearcoatRoughness: 0.05,
-      envMapIntensity: 2.2,
+      envMapIntensity: reflection,
+      blending: THREE.CustomBlending,
+      blendSrc: THREE.SrcAlphaFactor,
+      blendDst: THREE.OneFactor,
+      blendSrcAlpha: THREE.ZeroFactor,
+      blendDstAlpha: THREE.OneFactor,
       transparent: true,
-      opacity: 0.16,
+      opacity: 1,
       depthWrite: false,
     }),
   )
   mesh.renderOrder = 1 // over the pack it wraps
-  mesh.userData["film"] = true // casts no shadow
   return mesh
 }
 
@@ -93,15 +96,24 @@ export function buildPack(kit: Kit, format: PurchaseFormat, boosters: PackBooste
       group.add(mesh)
       return mesh
     })
-    const pack: Pack = { group, boosters: meshes, size: { w: BOOSTER_W + 0.6, h: BOOSTER_H, d: 0.5 } }
+    const tri = format === "TRI_PACK"
+    // the tri-pack is framed with its backing, bigger than the boosters
+    const pack: Pack = { group, boosters: meshes, size: tri ? { w: BOOSTER_W + 1.6, h: BOOSTER_H + 2.2, d: 0.8 } : { w: BOOSTER_W + 0.6, h: BOOSTER_H, d: 0.5 } }
     if (format === "TRI_PACK") {
-      // a blister: a printed cardboard backing behind the boosters, a clear plastic bubble over them
+      // a blister: a printed cardboard backing, bigger than the boosters (its print shows around them),
+      // a clear plastic bubble over them sealed on a flat rim
       const print = new THREE.MeshStandardMaterial({ map: kit.texture(drawBoxFace(format, title, colors, "band")), roughness: 0.6, transparent: true })
       const edge = new THREE.MeshStandardMaterial({ color: "#c7a77a", roughness: 0.8, transparent: true })
-      pack.band = new THREE.Mesh(new RoundedBoxGeometry(BOOSTER_W + 1.3, BOOSTER_H + 1.1, 0.06, 2, 0.03), [edge, edge, edge, edge, print, edge])
-      pack.band.position.set(0, 0.15, -0.5)
-      pack.wrap = film(new RoundedBoxGeometry(BOOSTER_W + 0.9, BOOSTER_H + 0.5, 0.75, 4, 0.18))
-      pack.wrap.position.set(0, -0.05, -0.1)
+      pack.band = new THREE.Mesh(new RoundedBoxGeometry(BOOSTER_W + 1.6, BOOSTER_H + 2.2, 0.06, 2, 0.03), [edge, edge, edge, edge, print, edge])
+      pack.band.position.set(0, 0.05, -0.5)
+      // its flat front faces the light: kept faint, its rounded edges still catch glints
+      const bubble = film(new RoundedBoxGeometry(BOOSTER_W + 0.9, BOOSTER_H + 0.5, 0.75, 6, 0.3), 0.18)
+      bubble.position.set(0, -0.05, -0.1)
+      const rim = film(new RoundedBoxGeometry(BOOSTER_W + 1.25, BOOSTER_H + 0.85, 0.02, 2, 0.01), 0.5)
+      rim.position.set(0, -0.08, -0.45) // a little off, like a real sealed flange
+      bubble.add(rim)
+      rim.position.sub(bubble.position)
+      pack.wrap = bubble
       group.add(pack.band, pack.wrap)
     }
     return pack
@@ -115,7 +127,7 @@ export function buildPack(kit: Kit, format: PurchaseFormat, boosters: PackBooste
   const print = (face: BoxFace, foil = false) =>
     new THREE.MeshStandardMaterial({
       map: kit.texture(drawBoxFace(format, title, colors, face)),
-      roughness: 0.55,
+      roughness: 0.7, // matte printed cardboard
       // the logo and the names are foil stamped
       ...(foil ? { metalness: 1, metalnessMap: metalMap(kit, drawBoxFace(format, title, colors, face, true)) } : {}),
       transparent: true,
@@ -153,13 +165,16 @@ export function buildPack(kit: Kit, format: PurchaseFormat, boosters: PackBooste
   hinge.add(lid)
 
   // sealed in cellophane, a tear strip across the front
-  const wrap = film(new RoundedBoxGeometry(w * 1.05, h * 1.03, d * 1.06, 3, 0.05 * box.scale))
+  const wrap = film(new RoundedBoxGeometry(w * 1.05, h * 1.03, d * 1.06, 3, 0.05 * box.scale), 0.4)
   wrap.position.y = 0.01
-  const tab = new THREE.Mesh(
-    new THREE.PlaneGeometry(w * 1.06, 0.07 * box.scale),
-    new THREE.MeshStandardMaterial({ color: "#e9e6f0", metalness: 0.4, roughness: 0.3, transparent: true }),
-  )
+  // the tear strip: a thin translucent ribbon, its free end hanging as a small tongue
+  const ribbon = new THREE.MeshStandardMaterial({ color: "#f4f1ff", roughness: 0.25, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+  const tab = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.06, 0.018 * box.scale), ribbon)
   tab.position.set(0, h / 2 - lidH * 0.5, (d * 1.06) / 2 + 0.004)
+  const tongue = new THREE.Mesh(new THREE.PlaneGeometry(0.07 * box.scale, 0.2 * box.scale), ribbon)
+  tongue.position.set((w * 1.06) / 2 - 0.05 * box.scale, -0.1 * box.scale, 0.01)
+  tongue.rotation.set(0.25, 0, 0.12)
+  tab.add(tongue)
 
   group.add(body, hinge, wrap, tab)
   return {
@@ -194,7 +209,7 @@ export function drawBoxFace(format: PurchaseFormat, name: string, colors: string
     back: [840, 640],
     lid: [840, 480],
     "lid-side": [840, 90],
-    band: [600, 820],
+    band: [600, 900],
   }
   const [W, H] = size[face]
   const [canvas, ctx] = canvas2d(W, H)
@@ -242,8 +257,22 @@ export function drawBoxFace(format: PurchaseFormat, name: string, colors: string
   }
 
   if (face === "band") {
-    fit("Chasing Clout", W - 60, 90, H * 0.07)
-    fit(f.label, W - 60, 70, H * 0.93)
+    // a colored border, the logo above the boosters, the format under them
+    if (!metal) {
+      ctx.shadowBlur = 0
+      ctx.strokeStyle = colors[0]
+      ctx.lineWidth = 22
+      ctx.strokeRect(11, 11, W - 22, H - 22)
+      ctx.fillStyle = "#0e0d12b3"
+      ctx.fillRect(22, 22, W - 44, H * 0.12)
+      ctx.fillRect(22, H * 0.88, W - 44, H * 0.12 - 22)
+      ctx.fillStyle = "#fff"
+    }
+    fit("Chasing Clout", W - 80, 76, H * 0.075)
+    if (!metal) {
+      ctx.font = "700 44px Unbounded, sans-serif"
+      ctx.fillText(`${f.label} ×${f.count}`, W / 2, H * 0.935)
+    }
   } else if (face === "side") {
     ctx.save()
     ctx.translate(W / 2, H / 2)

@@ -4,7 +4,6 @@ import { BoosterType, Card, FORMATS, PurchaseFormat } from "models/game.model"
 import { CARD_H, createCardObject, drawCardBack, loadFonts, loadImage, sparkMaterial } from "./card-art"
 import { boosterColors, buildPack, Pack, PackBooster } from "./pack-art"
 import { Stage } from "./stage"
-import { castShadows } from "./studio"
 
 // The shop window: what is being bought (a booster, a tri-pack or a display, two-colored when mixed)
 // on a lit stand, with a fan of the rarest cards behind it. It turns into the next pack live when the
@@ -51,8 +50,7 @@ export class ShopScene extends Stage {
     ring.rotation.x = -Math.PI / 2
     ring.position.y = -0.08
     this.stand.add(top, ring)
-    // the pack's shadow falls on the stand
-    top.receiveShadow = true
+    // the pack's contact shadow lies on the stand
     this.studio()
     this.scene.add(this.stand, this.holder)
 
@@ -215,7 +213,6 @@ export class ShopScene extends Stage {
     // displays are seen a little from the side, to show they are boxes
     if (pack.body) pack.group.rotation.y = -0.45
     this.holder.add(pack.group)
-    castShadows(pack.group)
     this.pack = pack
     this.height = pack.size.h
     this.spot.color.set(colors[0])
@@ -236,7 +233,7 @@ export class ShopScene extends Stage {
     tl.to(this.camera.position, { ...vars, x: 0, y: h * 0.35, z }, 0)
       .to(this.look, { ...vars, y: -h * 0.05 }, 0)
       .to(this.stand.position, { ...vars, y: -h / 2 - 0.15 }, 0)
-      .call(() => this.lights?.place(-h / 2 - 0.24, this.pack!.size), [], 0)
+      .call(() => this.lights?.place(-h / 2 - 0.05, this.pack!.size), [], 0)
       .to(this.stand.scale, { ...vars, x: radius, z: radius }, 0)
       .to(this.spot, { ...vars, distance: z * 3 }, 0)
       // the fan stands behind the stand, as tall as the pack

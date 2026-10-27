@@ -5,7 +5,6 @@ import { loadFonts } from "./card-art"
 import { boosterColors, BOOSTER_H, BOOSTER_W, buildPack, Pack } from "./pack-art"
 import { BoosterArt, boosterGeometry } from "./booster-art"
 import { Stage } from "./stage"
-import { castShadows } from "./studio"
 
 // A whole purchase in 3D: the closed pack (booster, tri-pack or display box) floats; opening it first
 // tears its cellophane (or peels the blister) and swings the lid open on the boosters standing inside,
@@ -43,6 +42,7 @@ export class BoxScene extends Stage {
   private gridZ = 10
   private closedZ = 10
   private unwrapped = false
+  private look = new THREE.Vector3() // where the camera looks: the box center, its inside while it opens
   private unwrapping?: gsap.core.Timeline
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -67,14 +67,13 @@ export class BoxScene extends Stage {
 
     this.pack = buildPack(this.kit, this.format, this.boosters, this.title)
     this.scene.add(this.pack.group)
-    // the closed pack in studio light, floating over its shadow (low enough for the tilted pack to clear it)
-    castShadows(this.pack.group)
-    this.studio().place(-this.pack.size.h * 0.85 - 0.1, this.pack.size)
+    // the closed pack in studio light, floating over its soft shadow
+    this.studio().place(-this.pack.size.h * 0.62, this.pack.size)
     if (this.isBox) {
-      // standing in the box in tight rows, facing the front, their tops just under the rim
+      // standing in the box in tight rows, facing the front, a quarter of their height out of the box
       const art = new BoosterArt(this.kit)
       const { w, d, floor } = this.pack.inner!
-      const k = (this.pack.size.h / 2 - floor - 0.1) / BOOSTER_H
+      const k = (this.pack.size.h / 2 - floor) / (0.75 * BOOSTER_H)
       const cols = Math.max(1, Math.floor(w / (BOOSTER_W * k * 1.04)))
       const rows = Math.ceil(this.boosters.length / cols)
       this.boosters.forEach((b, i) => {
@@ -90,7 +89,9 @@ export class BoxScene extends Stage {
           // a margin front and back: the packs lean and bulge
           d / 2 - 0.2 * k - ((row + 0.5) * (d - 0.4 * k)) / rows,
         )
-        holder.rotation.x = -0.06 + gsap.utils.random(-0.03, 0.03) // leaning a little
+        // leaning a little, every other one the other way
+        holder.rotation.x = (row % 2 ? -0.07 : -0.02) + gsap.utils.random(-0.015, 0.015)
+        holder.rotation.z = (col % 2 ? 0.035 : -0.035)
         holder.scale.setScalar(k)
         holder.visible = false
         this.pack.group.add(holder)
@@ -132,6 +133,8 @@ export class BoxScene extends Stage {
     const unwrapping = this.unwrap()
     if (unwrapping) await unwrapping
     if (this.disposed) return
+    // the camera looks straight at the grid again, as it moves to it
+    this.timeline().to(this.look, { x: 0, y: 0, z: 0, duration: 1.1, ease: "power2.inOut" }, this.isBox ? 0.6 : 0.2)
     this.opening = true
     const { group, lid, body, band, size } = this.pack
     const tl = this.timeline({ defaults: { ease: "power2.out" } })
@@ -183,16 +186,21 @@ export class BoxScene extends Stage {
     if (!wrap && !hinge) return undefined // a single booster
     const tl = this.timeline({ defaults: { ease: "power2.out" } })
     this.unwrapping = tl
-    // the pack stops floating and leans toward the camera, to show what is inside once open
+    // the pack stops floating; the camera steps back and rises to look down into the box
     this.opening = true
-    if (hinge) tl.to(this.pack.group.rotation, { x: 0.55, y: -0.3, z: 0, duration: 0.8, ease: "power2.inOut" }, 0.2)
+    if (hinge) {
+      const peek = this.peek()
+      tl.to(this.pack.group.rotation, { x: 0, y: -0.35, z: 0, duration: 0.9, ease: "power2.inOut" }, 0.2)
+        .to(this.camera.position, { ...peek.position, duration: 1.1, ease: "power2.inOut" }, 0.2)
+        .to(this.look, { ...peek.look, duration: 1.1, ease: "power2.inOut" }, 0.2)
+    }
     if (tab) {
       tl.to(tab.position, { x: size.w * 1.2, duration: 0.45, ease: "power1.in" }, 0).to(tab.material as THREE.Material, { opacity: 0, duration: 0.2 }, 0.3)
     }
     if (wrap) {
       const peel = !hinge // the blister bubble comes off forward and down
       tl.to(wrap.scale, { x: 1.04, y: 1.04, z: 1.06, duration: 0.4 }, peel ? 0 : 0.25)
-        .to(wrap.material as THREE.Material, { opacity: 0, duration: 0.45 }, peel ? 0.15 : 0.35)
+        .to(materials(wrap), { opacity: 0, duration: 0.45 }, peel ? 0.15 : 0.35)
       if (peel) tl.to(wrap.position, { y: -1.2, z: 1.5, duration: 0.6, ease: "power2.in" }, 0).to(wrap.rotation, { x: 0.9, duration: 0.6 }, 0)
       tl.call(() => (wrap.visible = false))
     }
@@ -203,7 +211,8 @@ export class BoxScene extends Stage {
         tl.to(lid.position, { y: `+=${size.h * 0.16}`, duration: 0.35, ease: "power2.out" }, at)
         at += 0.3
       }
-      tl.call(() => this.items.forEach((it) => (it.holder.visible = true)), [], at)
+      // the boosters show once the lid has cleared their tops
+      tl.call(() => this.items.forEach((it) => (it.holder.visible = true)), [], at + 0.2)
         .to(hinge.rotation, { x: -1.92, duration: 0.75, ease: "back.out(1.4)" }, at)
         .to({}, { duration: 0.35 }) // a look at the boosters inside
     }
@@ -253,6 +262,7 @@ export class BoxScene extends Stage {
       it.mesh.position.set(0, it.hover * 0.5 + (this.opened ? Math.sin(t * 1.4 + it.phase) * 0.06 : 0), it.hover * 1.2)
       it.material.emissiveIntensity = it.hover * 0.35
     }
+    this.camera.lookAt(this.look)
   }
 
   protected override onResize(): void {
@@ -261,15 +271,27 @@ export class BoxScene extends Stage {
       // the closed pack takes about two thirds of the screen
       const { w, h, d } = this.pack.size
       const fit = 2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))
-      this.closedZ = Math.max((h * 1.6) / fit, (w * 1.4) / fit / this.camera.aspect) + d / 2
+      // a little more than half of the height: room for the hint under it
+      this.closedZ = Math.max((h * 1.9) / fit, (w * 1.6) / fit / this.camera.aspect) + d / 2
     }
     if (this.opened) {
       this.camera.position.z = this.gridZ
       this.layout(this.timeline(), 0, 0)
     } else if (!this.busy) {
       // closed, or already unwrapped with reduced motion: not while an opening moves the camera
-      this.camera.position.set(0, 0, this.closedZ)
+      const view = this.unwrapped && this.pack.hinge ? this.peek() : { position: { x: 0, y: 0, z: this.closedZ }, look: { x: 0, y: 0, z: 0 } }
+      this.camera.position.set(view.position.x, view.position.y, view.position.z)
+      this.look.set(view.look.x, view.look.y, view.look.z)
     }
+  }
+
+  // Looking down into the open box (about 32°), far enough for the open lid to fit.
+  private peek(): { position: { x: number; y: number; z: number }; look: { x: number; y: number; z: number } } {
+    const { h } = this.pack.size
+    const distance = this.closedZ * 1.45
+    const angle = THREE.MathUtils.degToRad(32)
+    const look = { x: 0, y: h * 0.2, z: 0 }
+    return { position: { x: 0, y: look.y + Math.sin(angle) * distance, z: Math.cos(angle) * distance }, look }
   }
 
   private item(id: number, holder: THREE.Group, mesh: THREE.Mesh, material: THREE.MeshStandardMaterial, i: number): Item {

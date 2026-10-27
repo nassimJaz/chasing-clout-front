@@ -2,7 +2,7 @@ import * as THREE from "three"
 import { PurchaseFormat } from "models/game.model"
 import { Kit, loadFonts } from "./card-art"
 import { buildPack, PackBooster } from "./pack-art"
-import { castShadows, studio } from "./studio"
+import { studio } from "./studio"
 
 // Pictures of the real packs for the inventory: each model is rendered once, offscreen, under the studio
 // lighting, into a transparent PNG (cached for the session) instead of one live 3D scene per tile.
@@ -41,7 +41,7 @@ async function render(format: PurchaseFormat, boosters: PackBooster[], title: st
     const key = new THREE.DirectionalLight("#ffffff", 1.8)
     key.position.set(2, 3, 6)
     scene.add(key)
-    const lights = studio(renderer, scene, key)
+    const lights = studio(renderer, scene)
 
     const kit: Kit = {
       texture: (canvas) => {
@@ -54,7 +54,6 @@ async function render(format: PurchaseFormat, boosters: PackBooster[], title: st
       spark: new THREE.Texture(), // no particles here
     }
     const pack = buildPack(kit, format, boosters, title)
-    castShadows(pack.group)
     // displays a little from above and the side, like in the box scene
     if (pack.body) pack.group.rotation.set(0.25, -0.5, 0)
     scene.add(pack.group)

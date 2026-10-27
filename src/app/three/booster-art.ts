@@ -100,12 +100,15 @@ export class BoosterArt {
       this.crinkle.wrapS = this.crinkle.wrapT = THREE.RepeatWrapping
       this.crinkle.repeat.set(2, 6)
     }
+    // light prints (the gold Collection) would wash out under the studio reflections
+    const light = new THREE.Color(colors[0]).getHSL({ h: 0, s: 0, l: 0 }).l > 0.6
     return new THREE.MeshPhysicalMaterial({
       map: art.map,
-      metalness: 1,
+      metalness: light ? 0.55 : 1,
       metalnessMap: art.metal, // printed film over aluminium; the logo is bare foil
-      roughness: 0.34,
-      clearcoat: 1,
+      roughness: light ? 0.45 : 0.34,
+      envMapIntensity: light ? 0.35 : 1,
+      clearcoat: light ? 0.3 : 1,
       clearcoatRoughness: 0.22,
       normalMap: this.crinkle,
       normalScale: new THREE.Vector2(0.22, 0.22),

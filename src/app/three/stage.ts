@@ -12,7 +12,6 @@ export abstract class Stage {
   protected mouse = new THREE.Vector2() // -1..1, y up
   protected uTime = { value: 0 }
   protected disposed = false
-  protected sun = new THREE.DirectionalLight("#ffffff", 1.8)
   protected lights?: Studio // studio lighting, for the scenes showing products
 
   private textures: THREE.Texture[] = []
@@ -39,13 +38,14 @@ export abstract class Stage {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this.container.appendChild(this.renderer.domElement)
     this.scene.add(new THREE.AmbientLight("#ffffff", 1.6))
-    this.sun.position.set(2, 3, 6)
-    this.scene.add(this.sun)
+    const sun = new THREE.DirectionalLight("#ffffff", 1.8)
+    sun.position.set(2, 3, 6)
+    this.scene.add(sun)
   }
 
   // Opt-in product lighting (see studio.ts), after setup().
   protected studio(): Studio {
-    return (this.lights ??= studio(this.renderer, this.scene, this.sun))
+    return (this.lights ??= studio(this.renderer, this.scene))
   }
 
   // Once the scene is built: follow the container size and the mouse, start the render loop.

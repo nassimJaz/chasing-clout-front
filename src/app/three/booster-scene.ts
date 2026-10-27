@@ -17,7 +17,6 @@ import {
 import { boosterColors, BOOSTER_H, BOOSTER_W, STRIP } from "./pack-art"
 import { BoosterArt, boosterGeometry } from "./booster-art"
 import { Stage } from "./stage"
-import { castShadows } from "./studio"
 
 // The 3D booster opening: a pack that floats, gets torn open, then a stack of cards revealed one by one.
 
@@ -200,8 +199,7 @@ export class BoosterScene extends Stage {
     this.booster.add(this.strip, this.body)
     this.booster.position.y = STACK_Y
     this.scene.add(this.booster)
-    // the pack in studio light, its shadow on the floor under it
-    castShadows(this.booster)
+    // the pack in studio light, its soft shadow on the floor under it
     this.studio().place(STACK_Y - BOOSTER_H / 2 - 0.05, { w: BOOSTER_W, h: BOOSTER_H, d: 0.5 })
   }
 
