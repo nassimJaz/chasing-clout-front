@@ -14,7 +14,8 @@ import {
   setFire,
   sparkMaterial,
 } from "./card-art"
-import { boosterColors, boosterMaterial, BOOSTER_H, BOOSTER_W, drawBooster, STRIP } from "./pack-art"
+import { boosterColors, BOOSTER_H, BOOSTER_W, STRIP } from "./pack-art"
+import { BoosterArt, boosterGeometry } from "./booster-art"
 import { Stage } from "./stage"
 import { castShadows } from "./studio"
 
@@ -188,16 +189,13 @@ export class BoosterScene extends Stage {
   }
 
   private buildBooster(): void {
-    const canvas = drawBooster(this.boosterName, boosterColors(this.boosterCode))
-    const stripTexture = this.texture(canvas)
-    stripTexture.repeat.set(1, STRIP)
-    stripTexture.offset.set(0, 1 - STRIP)
-    const bodyTexture = this.texture(canvas)
-    bodyTexture.repeat.set(1, 1 - STRIP)
-
-    this.strip = new THREE.Mesh(new THREE.PlaneGeometry(BOOSTER_W, BOOSTER_H * STRIP), boosterMaterial(stripTexture))
+    // the same foil pack cut along the tear line: the strip flies off, the body falls
+    const art = new BoosterArt(this.kit)
+    const colors = boosterColors(this.boosterCode)
+    const tear = 1 - STRIP
+    this.strip = new THREE.Mesh(boosterGeometry(tear, 1, tear), art.material(this.boosterCode, this.boosterName, colors))
     this.strip.position.y = (BOOSTER_H * (1 - STRIP)) / 2
-    this.body = new THREE.Mesh(new THREE.PlaneGeometry(BOOSTER_W, BOOSTER_H * (1 - STRIP)), boosterMaterial(bodyTexture))
+    this.body = new THREE.Mesh(boosterGeometry(0, tear, tear), art.material(this.boosterCode, this.boosterName, colors))
     this.body.position.y = (-BOOSTER_H * STRIP) / 2
     this.booster.add(this.strip, this.body)
     this.booster.position.y = STACK_Y

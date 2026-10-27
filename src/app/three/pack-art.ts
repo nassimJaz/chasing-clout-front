@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import { FORMATS, PurchaseFormat } from "models/game.model"
 import { canvas2d, Kit } from "./card-art"
+import { BoosterArt, boosterGeometry, PACK_H, PACK_W } from "./booster-art"
 
 // What a purchase looks like in 3D: one booster, a tri-pack, or a display box growing with the format.
 
@@ -11,8 +12,8 @@ export const BOOSTER_COLORS: Record<string, string[]> = {
   COLLECTION: ["#f9e27d", "#c9a227", "#8d6e00"],
 }
 
-export const BOOSTER_W = 3.2
-export const BOOSTER_H = 4.8
+export const BOOSTER_W = PACK_W
+export const BOOSTER_H = PACK_H
 export const STRIP = 0.15 // share of the booster torn off at the top
 
 // Base display size (Display Mini), then the scale and the extra depth of each display.
@@ -47,10 +48,6 @@ export function packColors(codes: string[]): string[] {
   return distinct.length > 1 ? distinct.flatMap((c) => boosterColors(c).slice(0, 2)) : boosterColors(distinct[0])
 }
 
-export function boosterMaterial(map: THREE.Texture): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({ map, roughness: 0.35, metalness: 0.25, side: THREE.DoubleSide, transparent: true })
-}
-
 // title: the booster name, or both names for a mixed display. boosters: the ones left (a tri-pack can be half opened).
 export function buildPack(kit: Kit, format: PurchaseFormat, boosters: PackBooster[], title: string): Pack {
   const group = new THREE.Group()
@@ -59,10 +56,9 @@ export function buildPack(kit: Kit, format: PurchaseFormat, boosters: PackBooste
 
   if (!box) {
     // single or tri-pack: real boosters, stacked with a small offset
-    const textures = new Map<string, THREE.Texture>()
+    const art = new BoosterArt(kit)
     const meshes = boosters.slice(0, format === "TRI_PACK" ? 3 : 1).map((b, i) => {
-      if (!textures.has(b.code)) textures.set(b.code, kit.texture(drawBooster(b.name, boosterColors(b.code))))
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(BOOSTER_W, BOOSTER_H), boosterMaterial(textures.get(b.code)!))
+      const mesh = new THREE.Mesh(boosterGeometry(), art.material(b.code, b.name, boosterColors(b.code)))
       mesh.position.set((i - 1) * 0.3, -i * 0.12, -i * 0.15)
       mesh.rotation.z = (i - 1) * -0.04
       group.add(mesh)
@@ -180,53 +176,5 @@ export function drawBoxFace(format: PurchaseFormat, name: string, colors: string
     ctx.fillText(`×${f.count}`, W / 2, H * 0.62)
     fit(f.label, W - 60, 64, H * 0.88)
   }
-  return canvas
-}
-
-// The pack wrapper: colored like the inventory boosters, with a dashed tear line under the top strip.
-export function drawBooster(name: string, colors: string[]): HTMLCanvasElement {
-  const W = 400
-  const H = 600
-  const [canvas, ctx] = canvas2d(W, H)
-  const gradient = ctx.createLinearGradient(0, 0, W * 0.4, H)
-  colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), c))
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, W, H)
-
-  // crimped edges at the top and the bottom
-  ctx.fillStyle = "#ffffff33"
-  for (let x = 0; x < W; x += 16) {
-    ctx.fillRect(x, 0, 8, 24)
-    ctx.fillRect(x, H - 24, 8, 24)
-  }
-  // tear line
-  ctx.strokeStyle = "#ffffffcc"
-  ctx.lineWidth = 4
-  ctx.setLineDash([14, 10])
-  ctx.beginPath()
-  ctx.moveTo(0, H * STRIP)
-  ctx.lineTo(W, H * STRIP)
-  ctx.stroke()
-  ctx.setLineDash([])
-
-  // sheen
-  const sheen = ctx.createLinearGradient(0, 0, W, H)
-  sheen.addColorStop(0.3, "#ffffff00")
-  sheen.addColorStop(0.45, "#ffffff40")
-  sheen.addColorStop(0.6, "#ffffff00")
-  ctx.fillStyle = sheen
-  ctx.fillRect(0, 0, W, H)
-
-  ctx.fillStyle = "#fff"
-  ctx.textAlign = "center"
-  ctx.textBaseline = "middle"
-  ctx.shadowColor = "#0006"
-  ctx.shadowBlur = 12
-  ctx.font = "700 40px Caveat, sans-serif"
-  ctx.fillText("Chasing Clout", W / 2, H * 0.3)
-  let size = 90
-  ctx.font = `700 ${size}px Caveat, sans-serif`
-  while (ctx.measureText(name).width > W - 40 && size > 30) ctx.font = `700 ${(size -= 4)}px Caveat, sans-serif`
-  ctx.fillText(name, W / 2, H * 0.58)
   return canvas
 }

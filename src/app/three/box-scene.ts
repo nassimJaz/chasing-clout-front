@@ -2,7 +2,8 @@ import * as THREE from "three"
 import { gsap } from "gsap"
 import { PurchaseFormat, UserBooster } from "models/game.model"
 import { loadFonts } from "./card-art"
-import { boosterColors, boosterMaterial, BOOSTER_H, BOOSTER_W, buildPack, drawBooster, Pack } from "./pack-art"
+import { boosterColors, BOOSTER_H, BOOSTER_W, buildPack, Pack } from "./pack-art"
+import { BoosterArt, boosterGeometry } from "./booster-art"
 import { Stage } from "./stage"
 import { castShadows } from "./studio"
 
@@ -32,7 +33,7 @@ export class BoxScene extends Stage {
 
   private pack!: Pack
   private items: Item[] = []
-  private geometry = new THREE.PlaneGeometry(BOOSTER_W, BOOSTER_H)
+  private geometry = boosterGeometry()
   private raycaster = new THREE.Raycaster()
   private hovered?: Item
   private interactive = false
@@ -67,11 +68,10 @@ export class BoxScene extends Stage {
     this.studio().place(-this.pack.size.h / 2 - 0.02, this.pack.size)
     if (this.isBox) {
       // hidden inside the box, they come out of its top when it opens
-      const textures = new Map<string, THREE.Texture>()
+      const art = new BoosterArt(this.kit)
       const k = (this.pack.size.h * 0.7) / BOOSTER_H
       this.boosters.forEach((b, i) => {
-        if (!textures.has(b.code)) textures.set(b.code, this.texture(drawBooster(b.name, boosterColors(b.code))))
-        const material = boosterMaterial(textures.get(b.code)!)
+        const material = art.material(b.code, b.name, boosterColors(b.code))
         const mesh = new THREE.Mesh(this.geometry, material)
         const holder = new THREE.Group()
         holder.add(mesh)

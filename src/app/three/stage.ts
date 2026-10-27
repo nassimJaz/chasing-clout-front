@@ -138,10 +138,10 @@ export abstract class Stage {
       if (!keepGeometry) mesh.geometry?.dispose()
       const materials = mesh.material ? ([] as THREE.Material[]).concat(mesh.material) : []
       materials.forEach((m) => {
-        const map = (m as THREE.MeshStandardMaterial).map
-        if (withTextures && map) {
-          map.dispose()
-          this.textures = this.textures.filter((t) => t !== map)
+        if (withTextures) {
+          const maps = Object.values(m).filter((v): v is THREE.Texture => v instanceof THREE.Texture)
+          maps.forEach((t) => t.dispose())
+          this.textures = this.textures.filter((t) => !maps.includes(t))
         }
         m.dispose()
       })
